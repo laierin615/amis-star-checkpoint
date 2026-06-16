@@ -1061,7 +1061,7 @@
       <div class="title-row">
         <div>
           <h1>八角星線上集點</h1>
-          <p class="subtitle">先登記姓名建立集點卡；每通過一位關主，就取得一個菱形。八個菱形集滿後組成阿美族八角星圖騰，後台自動列入抽獎名單。</p>
+          <p class="subtitle">先登記姓名建立集點卡，第一個菱形會自動亮起；完成 1 到 7 關後，八個菱形集滿組成阿美族八角星圖騰，後台自動列入抽獎名單。</p>
         </div>
         <div class="activity-mark" aria-hidden="true">
           <svg viewBox="0 0 120 120" role="img" aria-label="八角星集點圖案">
@@ -1166,13 +1166,13 @@
                 <div>
                   <div class="subhead" style="margin-bottom:0;">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-                    <h3>第一關：完成表單</h3>
+                    <h3>起點菱形：預設取得</h3>
                   </div>
-                  <p>完成報名後開啟 Google 表單，系統會自動核發第一關菱形。</p>
+                  <p>完成報名後第一個菱形會直接亮起；問卷從第 1 關開始計算。</p>
                 </div>
                 <a class="button-link primary" id="completeFormStationBtn" href="https://forms.gle/1ZsEmkVoPNFVHNSFA" target="_blank" rel="noopener">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-                  開啟表單並取得第一關
+                  開啟問卷
                 </a>
               </div>
 
@@ -1192,7 +1192,7 @@
                     <div class="star-stage">
                       <div class="star-wrap">
                         <svg class="amis-star" id="amisStar" viewBox="0 0 260 260" role="img" aria-label="阿美族八角星集點圖"></svg>
-                        <div class="star-caption">每過一關亮起一個菱形；八個菱形集滿即完成闖關。</div>
+                        <div class="star-caption">起點菱形會先亮起；完成 1 到 7 關後即完成闖關。</div>
                       </div>
                     </div>
                     <div class="diamond-list" id="stampGrid"></div>
@@ -1246,7 +1246,7 @@
                   <div class="status-banner" id="hostStatus"></div>
                   <label>
                     <strong>關主口令</strong>
-                    <input id="hostPin" inputmode="numeric" pattern="[0-9]*" placeholder="口令：2 到 8">
+                    <input id="hostPin" inputmode="numeric" pattern="[0-9]*" placeholder="口令：1 到 7">
                   </label>
                   <label>
                     <strong>參加者代碼</strong>
@@ -1366,7 +1366,7 @@
                   <ul>
                     <li>參加者先登記姓名與身分別。</li>
                     <li>系統建立參加代碼，後台同步形成表格。</li>
-                    <li>八位關主各自拿到自己的給菱形口令。</li>
+                    <li>七位關主各自拿到自己的給菱形口令。</li>
                   </ul>
                 </div>
                 <div class="flow-step">
@@ -1380,7 +1380,7 @@
                 <div class="flow-step">
                   <h3>收尾</h3>
                   <ul>
-                    <li>八個菱形組成八角星，即完成闖關。</li>
+                    <li>起點菱形加上 7 關菱形組成八角星，即完成闖關。</li>
                     <li>主控台自動列出可抽獎名單。</li>
                     <li>匯出後台表格，保留活動紀錄。</li>
                   </ul>
@@ -1425,26 +1425,27 @@
     const SIMPLE_CODE_DIGITS = 3;
     const SIMPLE_CODE_START = 1;
     const MASTER_PINS = ["9", "9999"];
+    const DEFAULT_STATION_ID = "s1";
     const STATIONS = [
-      { id: "s1", number: 1, title: "完成 Google 表單", theme: "第一關表單", host: "系統自動", pin: "", legacyPins: [] },
-      { id: "s2", number: 2, title: "關卡二", theme: "山海人文", host: "關主二", pin: "2", legacyPins: ["2102"] },
-      { id: "s3", number: 3, title: "關卡三", theme: "山海藝音", host: "關主三", pin: "3", legacyPins: ["2103"] },
-      { id: "s4", number: 4, title: "關卡四", theme: "山海藝術", host: "關主四", pin: "4", legacyPins: ["2104"] },
-      { id: "s5", number: 5, title: "關卡五", theme: "山海專題", host: "關主五", pin: "5", legacyPins: ["2105"] },
-      { id: "s6", number: 6, title: "關卡六", theme: "族語問答", host: "關主六", pin: "6", legacyPins: ["2106"] },
-      { id: "s7", number: 7, title: "關卡七", theme: "海岸觀察", host: "關主七", pin: "7", legacyPins: ["2107"] },
-      { id: "s8", number: 8, title: "關卡八", theme: "成果分享", host: "關主八", pin: "8", legacyPins: ["2108"] }
+      { id: "s1", number: "✓", title: "起點菱形", theme: "預設取得", host: "系統自動", pin: "", legacyPins: [], canAward: false },
+      { id: "s2", number: 1, title: "問卷", theme: "問卷", host: "關主一", pin: "1", legacyPins: ["2102"] },
+      { id: "s3", number: 2, title: "cengel", theme: "cengel", host: "關主二", pin: "2", legacyPins: ["2103"] },
+      { id: "s4", number: 3, title: "Ilisin", theme: "Ilisin", host: "關主三", pin: "3", legacyPins: ["2104"] },
+      { id: "s5", number: 4, title: "Dateng", theme: "Dateng", host: "關主四", pin: "4", legacyPins: ["2105"] },
+      { id: "s6", number: 5, title: "Asa’", theme: "Asa’", host: "關主五", pin: "5", legacyPins: ["2106"] },
+      { id: "s7", number: 6, title: "Mipacing", theme: "Mipacing", host: "關主六", pin: "6", legacyPins: ["2107"] },
+      { id: "s8", number: 7, title: "noka", theme: "noka", host: "關主七", pin: "7", legacyPins: ["2108"] }
     ];
     const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {
-      selectedStationId: "s1",
+      selectedStationId: "s2",
       activeCode: "",
       participants: [],
       logs: []
     };
 
     const demoState = {
-      selectedStationId: "s1",
+      selectedStationId: "s2",
       activeCode: "001",
       participants: [
         {
@@ -1454,7 +1455,7 @@
           createdAt: new Date().toISOString(),
           stamps: {
             s1: { stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
-            s3: { stationId: "s3", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() }
+            s3: { stationId: "s3", host: "關主二", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() }
           }
         },
         {
@@ -1464,8 +1465,8 @@
           createdAt: new Date().toISOString(),
           stamps: {
             s1: { stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 54).toISOString() },
-            s2: { stationId: "s2", host: "關主二", time: new Date(Date.now() - 1000 * 60 * 47).toISOString() },
-            s4: { stationId: "s4", host: "關主四", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
+            s2: { stationId: "s2", host: "關主一", time: new Date(Date.now() - 1000 * 60 * 47).toISOString() },
+            s4: { stationId: "s4", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
           }
         },
         {
@@ -1484,10 +1485,10 @@
         }
       ],
       logs: [
-        { code: "003", stationId: "s8", host: "關主八", time: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
-        { code: "001", stationId: "s3", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() },
+        { code: "003", stationId: "s8", host: "關主七", time: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
+        { code: "001", stationId: "s3", host: "關主二", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() },
         { code: "001", stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
-        { code: "002", stationId: "s4", host: "關主四", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
+        { code: "002", stationId: "s4", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
       ]
     };
 
@@ -1539,6 +1540,7 @@
         usedCodes.add(nextCode);
         if (originalCode) codeRemap.set(originalCode, nextCode);
         if (compactCode) codeRemap.set(compactCode, nextCode);
+        ensureDefaultStamp(participant);
       });
       const activeCode = cleanCodeText(normalized.activeCode);
       normalized.activeCode = codeRemap.get(activeCode) || codeRemap.get(compactParticipantCode(activeCode)) || compactParticipantCode(activeCode);
@@ -1546,6 +1548,10 @@
         const logCode = cleanCodeText(log.code);
         log.code = codeRemap.get(logCode) || codeRemap.get(compactParticipantCode(logCode)) || compactParticipantCode(logCode);
       });
+      const awardableStations = STATIONS.filter((station) => station.canAward !== false);
+      if (!awardableStations.some((station) => station.id === normalized.selectedStationId)) {
+        normalized.selectedStationId = awardableStations[0]?.id || DEFAULT_STATION_ID;
+      }
       return normalized;
     }
 
@@ -1615,6 +1621,26 @@
 
     function stationById(id) {
       return STATIONS.find((station) => station.id === id) || STATIONS[0];
+    }
+
+    function awardableStations() {
+      return STATIONS.filter((station) => station.canAward !== false);
+    }
+
+    function defaultStamp() {
+      return {
+        stationId: DEFAULT_STATION_ID,
+        host: "系統自動",
+        time: new Date().toISOString()
+      };
+    }
+
+    function ensureDefaultStamp(participant) {
+      if (!participant) return;
+      participant.stamps = participant.stamps || {};
+      if (!participant.stamps[DEFAULT_STATION_ID]) {
+        participant.stamps[DEFAULT_STATION_ID] = defaultStamp();
+      }
     }
 
     function isValidStationPin(station, rawPin) {
@@ -1691,8 +1717,10 @@
           createdAt: new Date().toISOString(),
           stamps: {}
         };
+        ensureDefaultStamp(participant);
         state.participants.push(participant);
       }
+      ensureDefaultStamp(participant);
       state.activeCode = code;
       saveState();
       return code;
@@ -2021,7 +2049,7 @@
     function renderStations() {
       const selector = document.getElementById("stationSelector");
       selector.innerHTML = "";
-      STATIONS.forEach((station) => {
+      awardableStations().forEach((station) => {
         const button = document.createElement("button");
         button.className = `station-choice${state.selectedStationId === station.id ? " active" : ""}`;
         button.dataset.station = station.id;
@@ -2115,11 +2143,13 @@
           createdAt: new Date().toISOString(),
           stamps: {}
         };
+        ensureDefaultStamp(participant);
         state.participants.push(participant);
         state.activeCode = displayParticipantCode(participant);
       } else {
         participant.name = name;
         participant.group = group;
+        ensureDefaultStamp(participant);
       }
       saveState();
       showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。`);
@@ -2134,21 +2164,10 @@
         return;
       }
       participant.stamps = participant.stamps || {};
-      if (!participant.stamps.s1) {
-        const stamp = {
-          stationId: "s1",
-          host: "系統自動",
-          time: new Date().toISOString()
-        };
-        participant.stamps.s1 = stamp;
-        state.logs.unshift({ code: displayParticipantCode(participant), ...stamp });
-        state.activeCode = displayParticipantCode(participant);
-        saveState();
-        showRegistrationStatus("ok", "已開啟第一關表單，系統已自動核發第一關菱形。");
-        renderAll();
-        return;
-      }
-      showRegistrationStatus("ok", "第一關菱形已取得；表單已重新開啟。");
+      ensureDefaultStamp(participant);
+      state.activeCode = displayParticipantCode(participant);
+      saveState();
+      showRegistrationStatus("ok", "起點菱形已預設亮起；問卷請由第 1 關核發。");
       renderAll();
     }
 
@@ -2156,8 +2175,8 @@
       const station = stationById(state.selectedStationId);
       const pin = document.getElementById("hostPin").value;
       const code = compactParticipantCode(document.getElementById("awardCode").value);
-      if (station.id === "s1") {
-        showHostStatus("warn", "第一關由參加者完成 Google 表單後自動取得，不需關主核發。");
+      if (station.id === DEFAULT_STATION_ID || station.canAward === false) {
+        showHostStatus("warn", "起點菱形已預設取得，不需關主核發。");
         return;
       }
       if (!code) {
@@ -2177,8 +2196,10 @@
           createdAt: new Date().toISOString(),
           stamps: {}
         };
+        ensureDefaultStamp(participant);
         state.participants.push(participant);
       }
+      ensureDefaultStamp(participant);
       if (participant.stamps?.[station.id]) {
         showHostStatus("warn", `${participant.name} 已經取得 ${station.title} 的菱形，系統沒有重複核發。`);
         return;

@@ -900,6 +900,50 @@
       justify-content: flex-end;
     }
 
+    .is-hidden {
+      display: none !important;
+    }
+
+    .admin-gate {
+      max-width: 520px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      background: #fbfdfc;
+      border-radius: 8px;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .admin-gate p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .admin-gate-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .admin-error {
+      display: none;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff1f0;
+      border: 1px solid rgba(184, 74, 69, 0.45);
+      color: #7c2824;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .admin-error.show {
+      display: block;
+    }
+
     .raffle-bar {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -976,6 +1020,7 @@
         height: 92px;
       }
       .admin-actions { justify-content: flex-start; }
+      .admin-gate-form { grid-template-columns: 1fr; }
       .star-stage { min-height: 300px; }
       .diamond-row {
         grid-template-columns: 40px minmax(0, 1fr);
@@ -1197,7 +1242,7 @@
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16V9"/><path d="M13 16V6"/><path d="M18 16v-4"/></svg>
                 <h2 id="dashboardTitle">主控台</h2>
               </div>
-              <div class="admin-actions">
+              <div class="admin-actions is-hidden" id="adminActions">
                 <button id="exportCsvBtn">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
                   匯出後台表格
@@ -1221,25 +1266,46 @@
               </div>
             </div>
             <div class="panel-body">
-              <div class="raffle-bar">
-                <div class="raffle-result" id="raffleResult">完成八個菱形的參加者會自動列入抽獎名單。</div>
-                <span class="eligibility ready" id="raffleCount">0 位可抽獎</span>
+              <div class="admin-gate" id="dashboardGate">
+                <div class="subhead" style="margin-bottom:0;">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                  <h3>主控台密碼</h3>
+                </div>
+                <p>請輸入主控台密碼後查看後台表格、抽獎名單與匯出功能。</p>
+                <div class="admin-gate-form">
+                  <label>
+                    <strong>密碼</strong>
+                    <input id="dashboardPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="請輸入密碼">
+                  </label>
+                  <button class="primary" id="unlockDashboardBtn">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    進入主控台
+                  </button>
+                </div>
+                <div class="admin-error" id="dashboardPasswordError">密碼不正確，請重新輸入。</div>
               </div>
-              <div class="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>代碼</th>
-                      <th>姓名</th>
-                      <th>班級/隊名</th>
-                      <th>菱形</th>
-                      <th>八角星</th>
-                      <th>抽獎資格</th>
-                      <th>最後核點</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dashboardRows"></tbody>
-                </table>
+
+              <div id="dashboardContent" class="is-hidden">
+                <div class="raffle-bar">
+                  <div class="raffle-result" id="raffleResult">完成八個菱形的參加者會自動列入抽獎名單。</div>
+                  <span class="eligibility ready" id="raffleCount">0 位可抽獎</span>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>代碼</th>
+                        <th>姓名</th>
+                        <th>班級/隊名</th>
+                        <th>菱形</th>
+                        <th>八角星</th>
+                        <th>抽獎資格</th>
+                        <th>最後核點</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashboardRows"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -1311,6 +1377,8 @@
 
   <script>
     const STORAGE_KEY = "salimpo.onlineCheckpoint.v2";
+    const ADMIN_SESSION_KEY = "salimpo.dashboardUnlocked.v1";
+    const ADMIN_PASSWORD = "8888";
     const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
     const STATIONS = [
       { id: "s1", number: 1, title: "關卡一", theme: "山海生活", host: "關主一", pin: "2101" },
@@ -1391,6 +1459,55 @@
 
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function storageGet(storage, key) {
+      try {
+        return storage.getItem(key);
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function storageSet(storage, key, value) {
+      try {
+        storage.setItem(key, value);
+      } catch (error) {
+        window.__dashboardUnlocked = value === "true";
+      }
+    }
+
+    function isDashboardUnlocked() {
+      return storageGet(sessionStorage, ADMIN_SESSION_KEY) === "true" || window.__dashboardUnlocked === true;
+    }
+
+    function setDashboardUnlocked(value) {
+      storageSet(sessionStorage, ADMIN_SESSION_KEY, value ? "true" : "false");
+      window.__dashboardUnlocked = value;
+    }
+
+    function updateDashboardAccess(focusPassword = false) {
+      const unlocked = isDashboardUnlocked();
+      document.getElementById("adminActions").classList.toggle("is-hidden", !unlocked);
+      document.getElementById("dashboardGate").classList.toggle("is-hidden", unlocked);
+      document.getElementById("dashboardContent").classList.toggle("is-hidden", !unlocked);
+      if (focusPassword && !unlocked) {
+        document.getElementById("dashboardPassword").focus();
+      }
+    }
+
+    function unlockDashboard() {
+      const passwordInput = document.getElementById("dashboardPassword");
+      const error = document.getElementById("dashboardPasswordError");
+      if (passwordInput.value === ADMIN_PASSWORD) {
+        setDashboardUnlocked(true);
+        passwordInput.value = "";
+        error.classList.remove("show");
+        updateDashboardAccess();
+        return;
+      }
+      error.classList.add("show");
+      passwordInput.select();
     }
 
     function stationById(id) {
@@ -1977,6 +2094,9 @@
         document.querySelectorAll(".view").forEach((item) => item.classList.remove("active"));
         button.classList.add("active");
         document.getElementById(`view-${button.dataset.view}`).classList.add("active");
+        if (button.dataset.view === "dashboard") {
+          updateDashboardAccess(true);
+        }
       });
     });
 
@@ -1988,6 +2108,12 @@
       renderStations();
     });
 
+    document.getElementById("unlockDashboardBtn").addEventListener("click", unlockDashboard);
+    document.getElementById("dashboardPassword").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        unlockDashboard();
+      }
+    });
     document.getElementById("createParticipantBtn").addEventListener("click", createOrUpdateParticipant);
     document.getElementById("awardBtn").addEventListener("click", awardStamp);
     document.getElementById("useActiveCodeBtn").addEventListener("click", () => {
@@ -2059,6 +2185,7 @@
 
     const incomingParticipantCode = applyIncomingParticipant();
     renderAll();
+    updateDashboardAccess();
     if (incomingParticipantCode) {
       document.getElementById("awardCode").value = incomingParticipantCode;
     }

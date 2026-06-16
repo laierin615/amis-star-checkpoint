@@ -9,6 +9,8 @@
 
 公開網址：https://laierin615.github.io/amis-star-checkpoint/
 
+主控台密碼：`8888`
+
 ## 推薦流程
 
 ### 1. 活動前

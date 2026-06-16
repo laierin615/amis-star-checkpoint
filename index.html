@@ -1181,7 +1181,7 @@
                   <div class="passport-head">
                     <div>
                       <div class="participant-name" id="displayName">示範參加者</div>
-                      <div class="participant-meta" id="displayMeta">一甲 · NP115001</div>
+                      <div class="participant-meta" id="displayMeta">學生 · 001</div>
                     </div>
                     <div class="star-progress" aria-label="完成進度">
                       <svg class="mini-amis-star" id="miniAmisStar" viewBox="0 0 260 260" role="img" aria-label="目前取得的八角星菱形"></svg>
@@ -1246,11 +1246,11 @@
                   <div class="status-banner" id="hostStatus"></div>
                   <label>
                     <strong>關主口令</strong>
-                    <input id="hostPin" inputmode="numeric" placeholder="測試口令：2101 到 2108">
+                    <input id="hostPin" inputmode="numeric" pattern="[0-9]*" placeholder="口令：2 到 8">
                   </label>
                   <label>
                     <strong>參加者代碼</strong>
-                    <input id="awardCode" autocapitalize="characters" placeholder="例如：NP115001">
+                    <input id="awardCode" inputmode="numeric" pattern="[0-9]*" autocapitalize="characters" placeholder="例如：001，也可只輸入 1">
                   </label>
                   <div class="quick-actions">
                     <button class="primary" id="awardBtn">
@@ -1422,15 +1422,18 @@
     const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
     const FORM_STATION_URL = "https://forms.gle/1ZsEmkVoPNFVHNSFA";
     const IDENTITY_OPTIONS = ["學生", "來賓", "家長", "師長"];
+    const SIMPLE_CODE_DIGITS = 3;
+    const SIMPLE_CODE_START = 1;
+    const MASTER_PINS = ["9", "9999"];
     const STATIONS = [
-      { id: "s1", number: 1, title: "完成 Google 表單", theme: "第一關表單", host: "系統自動", pin: "" },
-      { id: "s2", number: 2, title: "關卡二", theme: "山海人文", host: "關主二", pin: "2102" },
-      { id: "s3", number: 3, title: "關卡三", theme: "山海藝音", host: "關主三", pin: "2103" },
-      { id: "s4", number: 4, title: "關卡四", theme: "山海藝術", host: "關主四", pin: "2104" },
-      { id: "s5", number: 5, title: "關卡五", theme: "山海專題", host: "關主五", pin: "2105" },
-      { id: "s6", number: 6, title: "關卡六", theme: "族語問答", host: "關主六", pin: "2106" },
-      { id: "s7", number: 7, title: "關卡七", theme: "海岸觀察", host: "關主七", pin: "2107" },
-      { id: "s8", number: 8, title: "關卡八", theme: "成果分享", host: "關主八", pin: "2108" }
+      { id: "s1", number: 1, title: "完成 Google 表單", theme: "第一關表單", host: "系統自動", pin: "", legacyPins: [] },
+      { id: "s2", number: 2, title: "關卡二", theme: "山海人文", host: "關主二", pin: "2", legacyPins: ["2102"] },
+      { id: "s3", number: 3, title: "關卡三", theme: "山海藝音", host: "關主三", pin: "3", legacyPins: ["2103"] },
+      { id: "s4", number: 4, title: "關卡四", theme: "山海藝術", host: "關主四", pin: "4", legacyPins: ["2104"] },
+      { id: "s5", number: 5, title: "關卡五", theme: "山海專題", host: "關主五", pin: "5", legacyPins: ["2105"] },
+      { id: "s6", number: 6, title: "關卡六", theme: "族語問答", host: "關主六", pin: "6", legacyPins: ["2106"] },
+      { id: "s7", number: 7, title: "關卡七", theme: "海岸觀察", host: "關主七", pin: "7", legacyPins: ["2107"] },
+      { id: "s8", number: 8, title: "關卡八", theme: "成果分享", host: "關主八", pin: "8", legacyPins: ["2108"] }
     ];
     const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {
@@ -1442,10 +1445,10 @@
 
     const demoState = {
       selectedStationId: "s1",
-      activeCode: "NP115001",
+      activeCode: "001",
       participants: [
         {
-          code: "NP115001",
+          code: "001",
           name: "示範參加者",
           group: "學生",
           createdAt: new Date().toISOString(),
@@ -1455,7 +1458,7 @@
           }
         },
         {
-          code: "NP115002",
+          code: "002",
           name: "林海風",
           group: "家長",
           createdAt: new Date().toISOString(),
@@ -1466,7 +1469,7 @@
           }
         },
         {
-          code: "NP115003",
+          code: "003",
           name: "陳星光",
           group: "師長",
           createdAt: new Date().toISOString(),
@@ -1481,21 +1484,79 @@
         }
       ],
       logs: [
-        { code: "NP115003", stationId: "s8", host: "關主八", time: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
-        { code: "NP115001", stationId: "s3", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() },
-        { code: "NP115001", stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
-        { code: "NP115002", stationId: "s4", host: "關主四", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
+        { code: "003", stationId: "s8", host: "關主八", time: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
+        { code: "001", stationId: "s3", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() },
+        { code: "001", stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
+        { code: "002", stationId: "s4", host: "關主四", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
       ]
     };
+
+    function cleanCodeText(value) {
+      return String(value || "").trim().toUpperCase().replace(/[^0-9A-Z]/g, "");
+    }
+
+    function normalizePin(value) {
+      return String(value || "").replace(/\D/g, "");
+    }
+
+    function formatCodeNumber(value) {
+      return String(value).padStart(SIMPLE_CODE_DIGITS, "0");
+    }
+
+    function compactParticipantCode(rawCode) {
+      const cleaned = cleanCodeText(rawCode);
+      if (!cleaned) return "";
+      const legacyMatch = cleaned.match(/^NP115(\d{1,4})$/);
+      if (legacyMatch) return formatCodeNumber(Number(legacyMatch[1]));
+      if (/^\d{1,3}$/.test(cleaned)) return formatCodeNumber(Number(cleaned));
+      return cleaned;
+    }
+
+    function displayParticipantCode(participant) {
+      return compactParticipantCode(participant?.code || participant);
+    }
+
+    function normalizeLoadedState(loaded) {
+      const normalized = { ...structuredClone(blankState), ...(loaded || {}) };
+      const usedCodes = new Set();
+      const codeRemap = new Map();
+      normalized.participants = Array.isArray(normalized.participants) ? normalized.participants : [];
+      normalized.logs = Array.isArray(normalized.logs) ? normalized.logs : [];
+      normalized.participants.forEach((participant) => {
+        const originalCode = cleanCodeText(participant.code);
+        const compactCode = compactParticipantCode(participant.code);
+        const keepCompactCode = /^\d+$/.test(compactCode) && !usedCodes.has(compactCode);
+        let nextCode = keepCompactCode ? compactCode : "";
+        for (let codeNumber = SIMPLE_CODE_START; !nextCode; codeNumber += 1) {
+          const candidate = formatCodeNumber(codeNumber);
+          if (!usedCodes.has(candidate)) nextCode = candidate;
+        }
+        if (originalCode && originalCode !== nextCode) {
+          const aliases = Array.isArray(participant.aliases) ? participant.aliases : [];
+          participant.aliases = Array.from(new Set([originalCode, ...aliases.map(cleanCodeText).filter(Boolean)]));
+        }
+        participant.code = nextCode;
+        usedCodes.add(nextCode);
+        if (originalCode) codeRemap.set(originalCode, nextCode);
+        if (compactCode) codeRemap.set(compactCode, nextCode);
+      });
+      const activeCode = cleanCodeText(normalized.activeCode);
+      normalized.activeCode = codeRemap.get(activeCode) || codeRemap.get(compactParticipantCode(activeCode)) || compactParticipantCode(activeCode);
+      normalized.logs.forEach((log) => {
+        const logCode = cleanCodeText(log.code);
+        log.code = codeRemap.get(logCode) || codeRemap.get(compactParticipantCode(logCode)) || compactParticipantCode(logCode);
+      });
+      return normalized;
+    }
 
     let state = loadState();
 
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : structuredClone(blankState);
+        return normalizeLoadedState(raw ? JSON.parse(raw) : structuredClone(blankState));
       } catch (error) {
-        return structuredClone(blankState);
+        return normalizeLoadedState(structuredClone(blankState));
       }
     }
 
@@ -1556,8 +1617,24 @@
       return STATIONS.find((station) => station.id === id) || STATIONS[0];
     }
 
+    function isValidStationPin(station, rawPin) {
+      const pin = normalizePin(rawPin);
+      return Boolean(pin) && (pin === station.pin || station.legacyPins.includes(pin) || MASTER_PINS.includes(pin));
+    }
+
+    function findParticipantByCode(rawCode) {
+      const code = compactParticipantCode(rawCode);
+      const directMatch = state.participants.find((participant) => displayParticipantCode(participant) === code);
+      if (directMatch) return directMatch;
+      const cleaned = cleanCodeText(rawCode);
+      return state.participants.find((participant) => {
+        const aliases = (participant.aliases || []).map(cleanCodeText);
+        return aliases.includes(cleaned) || aliases.some((alias) => compactParticipantCode(alias) === code);
+      });
+    }
+
     function activeParticipant() {
-      return state.participants.find((participant) => participant.code === state.activeCode) || state.participants[0];
+      return findParticipantByCode(state.activeCode) || state.participants[0];
     }
 
     function normalizeIdentity(value) {
@@ -1578,17 +1655,13 @@
       }).format(new Date(value));
     }
 
-    function makeCode() {
-      const seed = `${Date.now().toString(36).slice(-5)}${Math.random().toString(36).slice(2, 5)}`.toUpperCase();
-      return `NP${seed}`;
-    }
-
     function makeUniqueCode() {
-      let code = makeCode();
-      while (state.participants.some((participant) => participant.code === code)) {
-        code = makeCode();
+      const usedCodes = new Set(state.participants.map((participant) => displayParticipantCode(participant)));
+      let codeNumber = SIMPLE_CODE_START;
+      while (usedCodes.has(formatCodeNumber(codeNumber))) {
+        codeNumber += 1;
       }
-      return code;
+      return formatCodeNumber(codeNumber);
     }
 
     function siteBaseUrl() {
@@ -1600,16 +1673,16 @@
 
     function participantQrUrl(participant) {
       const url = new URL(siteBaseUrl());
-      url.searchParams.set("p", participant.code);
+      url.searchParams.set("p", displayParticipantCode(participant));
       return url.href;
     }
 
     function applyIncomingParticipant() {
       const params = new URLSearchParams(location.search);
       const rawCode = params.get("p") || params.get("participant") || "";
-      const code = rawCode.trim().toUpperCase();
+      const code = compactParticipantCode(rawCode);
       if (!code) return "";
-      let participant = state.participants.find((item) => item.code === code);
+      let participant = findParticipantByCode(code);
       if (!participant) {
         participant = {
           code,
@@ -1659,9 +1732,10 @@
         return;
       }
       const complete = countStamps(participant);
+      const participantCode = displayParticipantCode(participant);
       document.getElementById("displayName").textContent = participant.name || "未命名參加者";
-      document.getElementById("displayMeta").textContent = `${normalizeIdentity(participant.group)} · ${participant.code}`;
-      document.getElementById("participantCode").textContent = participant.code;
+      document.getElementById("displayMeta").textContent = `${normalizeIdentity(participant.group)} · ${participantCode}`;
+      document.getElementById("participantCode").textContent = participantCode;
       document.getElementById("progressCount").textContent = `${complete}/8`;
       document.getElementById("participantName").value = participant.name || "";
       document.getElementById("participantGroup").value = normalizeIdentity(participant.group);
@@ -1970,12 +2044,13 @@
         return;
       }
       state.logs.slice(0, 12).forEach((log) => {
-        const participant = state.participants.find((item) => item.code === log.code);
+        const participant = findParticipantByCode(log.code);
         const station = stationById(log.stationId);
+        const code = displayParticipantCode(log.code);
         const item = document.createElement("div");
         item.className = "log-item";
         item.innerHTML = `
-          <div class="log-main">${participant?.name || log.code} · ${station.title}</div>
+          <div class="log-main">${participant?.name || code} · ${station.title}</div>
           <div class="log-meta">${station.theme} · ${log.host} · ${formatTime(log.time)}</div>
         `;
         list.appendChild(item);
@@ -1995,9 +2070,10 @@
         const complete = countStamps(participant);
         const isEligible = complete === STATIONS.length;
         const lastStamp = Object.values(participant.stamps || {}).sort((a, b) => new Date(b.time) - new Date(a.time))[0];
+        const participantCode = displayParticipantCode(participant);
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td><button class="ghost select-participant" data-code="${participant.code}">${participant.code}</button></td>
+          <td><button class="ghost select-participant" data-code="${participantCode}">${participantCode}</button></td>
           <td>${participant.name || ""}</td>
           <td>${normalizeIdentity(participant.group)}</td>
           <td>${complete}/8</td>
@@ -2040,13 +2116,13 @@
           stamps: {}
         };
         state.participants.push(participant);
-        state.activeCode = participant.code;
+        state.activeCode = displayParticipantCode(participant);
       } else {
         participant.name = name;
         participant.group = group;
       }
       saveState();
-      showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${participant.code}。`);
+      showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。`);
       renderAll();
     }
 
@@ -2065,8 +2141,8 @@
           time: new Date().toISOString()
         };
         participant.stamps.s1 = stamp;
-        state.logs.unshift({ code: participant.code, ...stamp });
-        state.activeCode = participant.code;
+        state.logs.unshift({ code: displayParticipantCode(participant), ...stamp });
+        state.activeCode = displayParticipantCode(participant);
         saveState();
         showRegistrationStatus("ok", "已開啟第一關表單，系統已自動核發第一關菱形。");
         renderAll();
@@ -2078,8 +2154,8 @@
 
     function awardStamp() {
       const station = stationById(state.selectedStationId);
-      const pin = document.getElementById("hostPin").value.trim();
-      const code = document.getElementById("awardCode").value.trim().toUpperCase();
+      const pin = document.getElementById("hostPin").value;
+      const code = compactParticipantCode(document.getElementById("awardCode").value);
       if (station.id === "s1") {
         showHostStatus("warn", "第一關由參加者完成 Google 表單後自動取得，不需關主核發。");
         return;
@@ -2088,11 +2164,11 @@
         showHostStatus("warn", "請輸入參加者代碼。");
         return;
       }
-      if (pin !== station.pin && pin !== "9999") {
-        showHostStatus("bad", `${station.title} 的關主口令不正確。`);
+      if (!isValidStationPin(station, pin)) {
+        showHostStatus("bad", `${station.title} 的關主口令不正確。請輸入 ${station.pin}。`);
         return;
       }
-      let participant = state.participants.find((item) => item.code === code);
+      let participant = findParticipantByCode(code);
       if (!participant) {
         participant = {
           code,
@@ -2114,8 +2190,8 @@
       };
       participant.stamps = participant.stamps || {};
       participant.stamps[station.id] = stamp;
-      state.logs.unshift({ code: participant.code, ...stamp });
-      state.activeCode = participant.code;
+      state.logs.unshift({ code: displayParticipantCode(participant), ...stamp });
+      state.activeCode = displayParticipantCode(participant);
       saveState();
       showHostStatus("ok", `已為 ${participant.name} 核發 ${station.title} 的菱形。`);
       renderAll();
@@ -2125,7 +2201,7 @@
       return participants.map((participant) => {
         const lastStamp = Object.values(participant.stamps || {}).sort((a, b) => new Date(b.time) - new Date(a.time))[0];
         return [
-          participant.code,
+          displayParticipantCode(participant),
           participant.name,
           normalizeIdentity(participant.group),
           countStamps(participant),
@@ -2161,7 +2237,7 @@
         return;
       }
       const winner = eligible[Math.floor(Math.random() * eligible.length)];
-      result.textContent = `抽獎結果：${winner.name}（${normalizeIdentity(winner.group)}，${winner.code}）`;
+      result.textContent = `抽獎結果：${winner.name}（${normalizeIdentity(winner.group)}，${displayParticipantCode(winner)}）`;
     }
 
     document.querySelectorAll(".nav-btn").forEach((button) => {
@@ -2195,10 +2271,10 @@
     document.getElementById("awardBtn").addEventListener("click", awardStamp);
     document.getElementById("useActiveCodeBtn").addEventListener("click", () => {
       const participant = activeParticipant();
-      document.getElementById("awardCode").value = participant?.code || "";
+      document.getElementById("awardCode").value = displayParticipantCode(participant);
     });
     document.getElementById("copyCodeBtn").addEventListener("click", async () => {
-      const code = activeParticipant()?.code || "";
+      const code = displayParticipantCode(activeParticipant());
       if (!code) {
         showRegistrationStatus("warn", "請先完成報名，系統才會產生參加代碼。");
         return;
@@ -2232,7 +2308,7 @@
       const blob = new Blob([svg.outerHTML], { type: "image/svg+xml;charset=utf-8" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `${participant.code}-qr.svg`;
+      link.download = `${displayParticipantCode(participant)}-qr.svg`;
       link.click();
       URL.revokeObjectURL(link.href);
     });

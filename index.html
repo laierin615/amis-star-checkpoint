@@ -1168,11 +1168,11 @@
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
                     <h3>起點菱形：預設取得</h3>
                   </div>
-                  <p>完成報名後第一個菱形會直接亮起；問卷從第 1 關開始計算。</p>
+                  <p>按下後會直接完成第 1 關問卷菱形，問卷會另開分頁，做完回來繼續闖關。</p>
                 </div>
                 <a class="button-link primary" id="completeFormStationBtn" href="https://forms.gle/1ZsEmkVoPNFVHNSFA" target="_blank" rel="noopener">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-                  開啟問卷
+                  完成問卷關卡
                 </a>
               </div>
 
@@ -1245,12 +1245,12 @@
                 <div class="host-form">
                   <div class="status-banner" id="hostStatus"></div>
                   <label>
-                    <strong>關主口令</strong>
-                    <input id="hostPin" inputmode="numeric" pattern="[0-9]*" placeholder="口令：1 到 7">
+                    <strong>給點密碼</strong>
+                    <input id="hostPin" inputmode="numeric" pattern="[0-9]*" placeholder="請先選擇關卡">
                   </label>
                   <label>
-                    <strong>參加者代碼</strong>
-                    <input id="awardCode" inputmode="numeric" pattern="[0-9]*" autocapitalize="characters" placeholder="例如：001，也可只輸入 1">
+                    <strong>參加者代碼（自動帶入）</strong>
+                    <input id="awardCode" inputmode="numeric" pattern="[0-9]*" autocapitalize="characters" placeholder="掃描 QR 後自動帶入" readonly>
                   </label>
                   <div class="quick-actions">
                     <button class="primary" id="awardBtn">
@@ -1259,7 +1259,7 @@
                     </button>
                     <button id="useActiveCodeBtn">
                       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2h-4"/><path d="M3 9V5a2 2 0 0 1 2-2h4"/><path d="M21 9V5a2 2 0 0 0-2-2h-4"/><path d="M3 15v4a2 2 0 0 0 2 2h4"/><path d="M8 12h8"/></svg>
-                      帶入目前參加者
+                      重新帶入代碼
                     </button>
                   </div>
                   <div class="subsection">
@@ -1422,30 +1422,32 @@
     const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
     const FORM_STATION_URL = "https://forms.gle/1ZsEmkVoPNFVHNSFA";
     const IDENTITY_OPTIONS = ["學生", "來賓", "家長", "師長"];
+    const CODE_COUNTER_KEY = "salimpo.starCheckpoint.nextCode.v1";
     const SIMPLE_CODE_DIGITS = 3;
     const SIMPLE_CODE_START = 1;
-    const MASTER_PINS = ["9", "9999"];
+    const MASTER_PINS = [];
     const DEFAULT_STATION_ID = "s1";
+    const FORM_STATION_ID = "s2";
     const STATIONS = [
       { id: "s1", number: "✓", title: "起點菱形", theme: "預設取得", host: "系統自動", pin: "", legacyPins: [], canAward: false },
-      { id: "s2", number: 1, title: "問卷", theme: "問卷", host: "關主一", pin: "1", legacyPins: ["2102"] },
-      { id: "s3", number: 2, title: "cengel", theme: "cengel", host: "關主二", pin: "2", legacyPins: ["2103"] },
-      { id: "s4", number: 3, title: "Ilisin", theme: "Ilisin", host: "關主三", pin: "3", legacyPins: ["2104"] },
-      { id: "s5", number: 4, title: "Dateng", theme: "Dateng", host: "關主四", pin: "4", legacyPins: ["2105"] },
-      { id: "s6", number: 5, title: "Asa’", theme: "Asa’", host: "關主五", pin: "5", legacyPins: ["2106"] },
-      { id: "s7", number: 6, title: "Mipacing", theme: "Mipacing", host: "關主六", pin: "6", legacyPins: ["2107"] },
-      { id: "s8", number: 7, title: "noka", theme: "noka", host: "關主七", pin: "7", legacyPins: ["2108"] }
+      { id: "s2", number: 1, title: "問卷", theme: "問卷", host: "問卷自動", pin: "", legacyPins: [], canAward: false },
+      { id: "s3", number: 2, title: "cengel", theme: "cengel", host: "關主二", pin: "212", legacyPins: [] },
+      { id: "s4", number: 3, title: "Ilisin", theme: "Ilisin", host: "關主三", pin: "323", legacyPins: [] },
+      { id: "s5", number: 4, title: "Dateng", theme: "Dateng", host: "關主四", pin: "434", legacyPins: [] },
+      { id: "s6", number: 5, title: "Asa’", theme: "Asa’", host: "關主五", pin: "545", legacyPins: [] },
+      { id: "s7", number: 6, title: "Mipacing", theme: "Mipacing", host: "關主六", pin: "656", legacyPins: [] },
+      { id: "s8", number: 7, title: "noka", theme: "noka", host: "關主七", pin: "767", legacyPins: [] }
     ];
     const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {
-      selectedStationId: "s2",
+      selectedStationId: "s3",
       activeCode: "",
       participants: [],
       logs: []
     };
 
     const demoState = {
-      selectedStationId: "s2",
+      selectedStationId: "s3",
       activeCode: "001",
       participants: [
         {
@@ -1586,6 +1588,14 @@
       }
     }
 
+    function storageRemove(storage, key) {
+      try {
+        storage.removeItem(key);
+      } catch (error) {
+        return;
+      }
+    }
+
     function isDashboardUnlocked() {
       return storageGet(sessionStorage, ADMIN_SESSION_KEY) === "true" || window.__dashboardUnlocked === true;
     }
@@ -1681,13 +1691,25 @@
       }).format(new Date(value));
     }
 
-    function makeUniqueCode() {
+    function reserveUniqueCode() {
+      const storedNext = Number(storageGet(localStorage, CODE_COUNTER_KEY));
       const usedCodes = new Set(state.participants.map((participant) => displayParticipantCode(participant)));
-      let codeNumber = SIMPLE_CODE_START;
+      const usedNumbers = [...usedCodes]
+        .filter((code) => /^\d+$/.test(code))
+        .map((code) => Number(code));
+      let codeNumber = Math.max(SIMPLE_CODE_START, storedNext || SIMPLE_CODE_START, ...usedNumbers.map((code) => code + 1));
       while (usedCodes.has(formatCodeNumber(codeNumber))) {
         codeNumber += 1;
       }
+      storageSet(localStorage, CODE_COUNTER_KEY, String(codeNumber + 1));
       return formatCodeNumber(codeNumber);
+    }
+
+    async function makeUniqueCode() {
+      if (navigator.locks?.request) {
+        return navigator.locks.request("salimpo-participant-code", reserveUniqueCode);
+      }
+      return reserveUniqueCode();
     }
 
     function siteBaseUrl() {
@@ -1732,6 +1754,7 @@
       renderStations();
       renderLogs();
       renderDashboard();
+      renderHostInputs();
     }
 
     function renderMetrics() {
@@ -2064,6 +2087,18 @@
       });
     }
 
+    function renderHostInputs() {
+      const station = stationById(state.selectedStationId);
+      const pinInput = document.getElementById("hostPin");
+      const codeInput = document.getElementById("awardCode");
+      if (pinInput) {
+        pinInput.placeholder = station.pin ? `給點密碼：${station.pin}` : "請先選擇關卡";
+      }
+      if (codeInput) {
+        codeInput.value = displayParticipantCode(activeParticipant());
+      }
+    }
+
     function renderLogs() {
       const list = document.getElementById("logList");
       list.innerHTML = "";
@@ -2125,49 +2160,65 @@
       status.textContent = text;
     }
 
-    function createOrUpdateParticipant() {
+    async function createOrUpdateParticipant() {
       const name = document.getElementById("participantName").value.trim();
       const group = normalizeIdentity(document.getElementById("participantGroup").value);
       if (!name) {
         showRegistrationStatus("warn", "請先填寫姓名，後台才有可抽獎的登記資料。");
         return;
       }
+      const createButton = document.getElementById("createParticipantBtn");
+      createButton.disabled = true;
       let participant = activeParticipant();
       const sameParticipant = participant && participant.name === name && normalizeIdentity(participant.group) === group;
       const importedPlaceholder = participant && (participant.name === "QR 掃描匯入" || participant.name === "現場補登" || participant.name === "未命名學生" || participant.name === "未命名參加者");
-      if (!participant || (!sameParticipant && !importedPlaceholder)) {
-        participant = {
-          code: makeUniqueCode(),
-          name,
-          group,
-          createdAt: new Date().toISOString(),
-          stamps: {}
-        };
-        ensureDefaultStamp(participant);
-        state.participants.push(participant);
-        state.activeCode = displayParticipantCode(participant);
-      } else {
-        participant.name = name;
-        participant.group = group;
-        ensureDefaultStamp(participant);
+      try {
+        if (!participant || (!sameParticipant && !importedPlaceholder)) {
+          participant = {
+            code: await makeUniqueCode(),
+            name,
+            group,
+            createdAt: new Date().toISOString(),
+            stamps: {}
+          };
+          ensureDefaultStamp(participant);
+          state.participants.push(participant);
+          state.activeCode = displayParticipantCode(participant);
+        } else {
+          participant.name = name;
+          participant.group = group;
+          ensureDefaultStamp(participant);
+        }
+        saveState();
+        showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。`);
+        renderAll();
+      } finally {
+        createButton.disabled = false;
       }
-      saveState();
-      showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。`);
-      renderAll();
     }
 
     function completeFormStation(event) {
       const participant = activeParticipant();
       if (!participant) {
         event?.preventDefault();
-        showRegistrationStatus("warn", "請先完成報名，再開啟第一關表單取得菱形。");
+        showRegistrationStatus("warn", "請先完成報名，再開啟問卷。");
         return;
       }
       participant.stamps = participant.stamps || {};
       ensureDefaultStamp(participant);
+      const formStation = stationById(FORM_STATION_ID);
+      if (!participant.stamps[FORM_STATION_ID]) {
+        const stamp = {
+          stationId: FORM_STATION_ID,
+          host: formStation.host,
+          time: new Date().toISOString()
+        };
+        participant.stamps[FORM_STATION_ID] = stamp;
+        state.logs.unshift({ code: displayParticipantCode(participant), ...stamp });
+      }
       state.activeCode = displayParticipantCode(participant);
       saveState();
-      showRegistrationStatus("ok", "起點菱形已預設亮起；問卷請由第 1 關核發。");
+      showRegistrationStatus("ok", "第 1 關問卷已完成。問卷另開分頁，做完回來繼續闖關。");
       renderAll();
     }
 
@@ -2184,7 +2235,7 @@
         return;
       }
       if (!isValidStationPin(station, pin)) {
-        showHostStatus("bad", `${station.title} 的關主口令不正確。請輸入 ${station.pin}。`);
+        showHostStatus("bad", `${station.title} 的給點密碼不正確。請輸入 ${station.pin}。`);
         return;
       }
       let participant = findParticipantByCode(code);
@@ -2278,7 +2329,9 @@
       if (!button) return;
       state.selectedStationId = button.dataset.station;
       saveState();
+      document.getElementById("hostPin").value = "";
       renderStations();
+      renderHostInputs();
     });
 
     document.getElementById("unlockDashboardBtn").addEventListener("click", unlockDashboard);
@@ -2345,6 +2398,7 @@
     document.getElementById("resetBtn").addEventListener("click", () => {
       if (!window.confirm("確定清空目前瀏覽器中的示範資料？")) return;
       state = structuredClone(blankState);
+      storageRemove(localStorage, CODE_COUNTER_KEY);
       saveState();
       renderAll();
     });

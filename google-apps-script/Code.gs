@@ -1,27 +1,29 @@
-const SPREADSHEET_ID = "";
+const SPREADSHEET_ID = "1uaU1pF7ybSVMT5tZ6KKB3hayY5XEz2k01Z4qA_SzBs0";
 const SPREADSHEET_NAME = "八角星集點資料庫";
 
 const SHEETS = {
   participants: "participants",
   stamps: "stamps",
+  completions: "completions",
   meta: "meta"
 };
 
 const HEADERS = {
   participants: ["code", "name", "group", "created_at", "updated_at"],
   stamps: ["code", "station_id", "station_title", "host", "created_at"],
+  completions: ["code", "name", "group", "completed_at"],
   meta: ["key", "value"]
 };
 
 const STATIONS = [
-  { id: "s1", title: "問卷完成", host: "表單自動", pin: "", canAward: false },
-  { id: "s2", title: "完成報名", host: "系統自動", pin: "", canAward: false },
-  { id: "s3", title: "cengel", host: "cengel 關主", pin: "212", canAward: true },
-  { id: "s4", title: "Ilisin", host: "Ilisin 關主", pin: "323", canAward: true },
-  { id: "s5", title: "Dateng", host: "Dateng 關主", pin: "434", canAward: true },
-  { id: "s6", title: "Asa’", host: "Asa’ 關主", pin: "545", canAward: true },
-  { id: "s7", title: "Mipacing", host: "Mipacing 關主", pin: "656", canAward: true },
-  { id: "s8", title: "noka", host: "noka 關主", pin: "767", canAward: true }
+  { id: "s1", title: "問卷通關", host: "自動點亮", pin: "", canAward: false },
+  { id: "s2", title: "真名報到", host: "自動點亮", pin: "", canAward: false },
+  { id: "s3", title: "cengel", host: "密語 212", pin: "212", canAward: true },
+  { id: "s4", title: "Ilisin", host: "密語 323", pin: "323", canAward: true },
+  { id: "s5", title: "Dateng", host: "密語 434", pin: "434", canAward: true },
+  { id: "s6", title: "Asa’", host: "密語 545", pin: "545", canAward: true },
+  { id: "s7", title: "Mipacing", host: "密語 656", pin: "656", canAward: true },
+  { id: "s8", title: "noka", host: "密語 767", pin: "767", canAward: true }
 ];
 
 const DEFAULT_STATION_ID = "s2";
@@ -52,6 +54,7 @@ function handleRequest_(e) {
     if (action === "register") return output_(register_(params), params.callback);
     if (action === "formComplete") return output_(formComplete_(params), params.callback);
     if (action === "award") return output_(award_(params), params.callback);
+    if (action === "complete") return output_(complete_(params), params.callback);
     return output_({ ok: false, error: "未知的 action: " + action }, params.callback);
   } catch (error) {
     return output_({ ok: false, error: error.message || String(error) }, params.callback);
@@ -230,6 +233,42 @@ function addStampIfMissing_(code, station, host) {
   return true;
 }
 
+function completionByCode_(code) {
+  const normalizedCode = normalizeCode_(code);
+  return rows_("completions").find(function (completion) {
+    return normalizeCode_(completion.code) === normalizedCode;
+  });
+}
+
+function participantHasAllStamps_(code) {
+  const normalizedCode = normalizeCode_(code);
+  const stationIds = new Set(rows_("stamps")
+    .filter(function (stamp) {
+      return normalizeCode_(stamp.code) === normalizedCode;
+    })
+    .map(function (stamp) {
+      return stamp.station_id;
+    }));
+  return STATIONS.every(function (station) {
+    return stationIds.has(station.id);
+  });
+}
+
+function addCompletionIfEligible_(code) {
+  const normalizedCode = normalizeCode_(code);
+  const participant = participantByCode_(normalizedCode);
+  if (!participant) return false;
+  if (!participantHasAllStamps_(normalizedCode)) return false;
+  if (completionByCode_(normalizedCode)) return false;
+  sheet_("completions").appendRow([
+    normalizedCode,
+    participant.name || "",
+    participant.group || "學生",
+    nowIso_()
+  ]);
+  return true;
+}
+
 function state_() {
   const participants = rows_("participants").map(function (participant) {
     return {
@@ -257,6 +296,12 @@ function state_() {
   }).sort(function (a, b) {
     return new Date(b.time) - new Date(a.time);
   });
+  rows_("completions").forEach(function (completion) {
+    const code = normalizeCode_(completion.code);
+    if (participantMap[code]) {
+      participantMap[code].completedAt = toIso_(completion.completed_at);
+    }
+  });
   participants.sort(function (a, b) {
     return a.code.localeCompare(b.code, "en", { numeric: true });
   });
@@ -266,7 +311,7 @@ function state_() {
 function register_(params) {
   const name = String(params.name || "").trim();
   const group = String(params.group || "學生").trim() || "學生";
-  if (!name) return { ok: false, error: "請先填寫姓名。" };
+  if (!name) return { ok: false, error: "請填寫真實姓名，抽獎領獎時會用來核對身份。" };
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
@@ -275,9 +320,9 @@ function register_(params) {
     const code = existing ? requestedCode : nextCode_();
     const participant = upsertParticipant_(code, name, group);
     if (truthy_(params.formDone) || truthy_(params.form) || truthy_(params.formCompleted)) {
-      addStampIfMissing_(code, stationById_(FORM_STATION_ID), "表單自動");
+      addStampIfMissing_(code, stationById_(FORM_STATION_ID), "自動點亮");
     }
-    addStampIfMissing_(code, stationById_(DEFAULT_STATION_ID), "系統自動");
+    addStampIfMissing_(code, stationById_(DEFAULT_STATION_ID), "自動點亮");
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;
@@ -296,7 +341,7 @@ function formComplete_(params) {
   try {
     const participant = participantByCode_(code);
     if (!participant) return { ok: false, error: "找不到這個參加者代碼，請先完成報名。" };
-    addStampIfMissing_(code, stationById_(FORM_STATION_ID), "表單自動");
+    addStampIfMissing_(code, stationById_(FORM_STATION_ID), "自動點亮");
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;
@@ -320,6 +365,27 @@ function award_(params) {
     const participant = participantByCode_(code);
     if (!participant) return { ok: false, error: "找不到這個參加者代碼，請先完成報名。" };
     const added = addStampIfMissing_(code, station, station.host);
+    const completed = addCompletionIfEligible_(code);
+    const currentState = state_();
+    const updatedParticipant = currentState.participants.find(function (item) {
+      return item.code === code;
+    });
+    return { ok: true, already: !added, completed: completed, participant: updatedParticipant, state: currentState };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function complete_(params) {
+  const code = normalizeCode_(params.code);
+  if (!code) return { ok: false, error: "請先完成真名報到。" };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const participant = participantByCode_(code);
+    if (!participant) return { ok: false, error: "找不到這個參加者代碼，請先完成報名。" };
+    if (!participantHasAllStamps_(code)) return { ok: false, error: "八枚星芒尚未集滿。" };
+    const added = addCompletionIfEligible_(code);
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;

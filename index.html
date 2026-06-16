@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>八角星線上集點</title>
+  <title>Salimpo 八角星任務卡</title>
+  <link rel="icon" href="data:,">
   <style>
     :root {
       --bg: #fff5f8;
@@ -205,19 +206,15 @@
 
     main {
       display: grid;
-      grid-template-columns: 236px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 18px;
-      width: min(100%, 1420px);
+      width: min(100%, 1080px);
       margin: 0 auto;
       padding: 18px clamp(12px, 3vw, 30px) 32px;
     }
 
     nav {
-      position: sticky;
-      top: 16px;
-      align-self: start;
-      display: grid;
-      gap: 8px;
+      display: none;
     }
 
     .nav-btn {
@@ -302,7 +299,7 @@
 
     .grid-2 {
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 18px;
       align-items: start;
     }
@@ -1011,6 +1008,92 @@
       line-height: 1.55;
     }
 
+    #view-host,
+    #view-dashboard,
+    #view-flow,
+    .panel-head > .quick-actions,
+    .form-challenge,
+    .ticket {
+      display: none !important;
+    }
+
+    .field-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .diamond-row {
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .diamond-row.actionable {
+      cursor: pointer;
+    }
+
+    .diamond-row.actionable:hover {
+      transform: translateY(-1px);
+      border-color: var(--deep);
+      background: #fff7fb;
+    }
+
+    .diamond-row.locked {
+      opacity: 0.68;
+    }
+
+    .checkpoint-panel {
+      margin-top: 14px;
+      border: 1px solid rgba(200, 61, 119, 0.34);
+      background: #fff8fb;
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .checkpoint-panel.is-hidden,
+    .celebration-banner.is-hidden {
+      display: none;
+    }
+
+    .checkpoint-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .checkpoint-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .checkpoint-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .celebration-banner {
+      margin: 0 0 16px;
+      border: 1px solid rgba(196, 134, 37, 0.36);
+      background: #fff8ea;
+      color: #5e4215;
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .celebration-banner strong {
+      color: #744d11;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
     @media (max-width: 1060px) {
       main { grid-template-columns: 1fr; }
       nav {
@@ -1053,6 +1136,7 @@
         justify-self: start;
       }
       .raffle-bar { grid-template-columns: 1fr; }
+      .checkpoint-actions { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1061,8 +1145,8 @@
     <header>
       <div class="title-row">
         <div>
-          <h1>八角星線上集點</h1>
-          <p class="subtitle">先掃 Google 表單 QR 完成問卷取得第 1 個菱形；進入集點卡登記姓名取得第 2 個菱形；第 3 到第 8 關由關主輸入給點密碼，八個菱形集滿後自動列入抽獎名單。</p>
+          <h1>Salimpo 八角星任務卡</h1>
+          <p class="subtitle">問卷入口已通關，第一枚星芒已點亮。填寫真實姓名完成報到後，點選任務卡上的關卡、輸入該站密語，就能收集下一枚星芒；集滿八芒即可取得抽獎資格。</p>
         </div>
         <div class="activity-mark" aria-hidden="true">
           <svg viewBox="0 0 120 120" role="img" aria-label="八角星集點圖案">
@@ -1106,7 +1190,7 @@
             <div class="panel-head">
               <div class="panel-title">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-1.5Z"/><path d="M8 7h6M8 11h8M8 15h5"/></svg>
-                <h2 id="participantTitle">報名集點卡</h2>
+                <h2 id="participantTitle">我的任務卡</h2>
               </div>
               <div class="quick-actions">
                 <button id="copyCodeBtn">
@@ -1124,18 +1208,19 @@
                 <div class="star-stage">
                   <div class="star-wrap">
                     <svg class="amis-star" id="amisStar" viewBox="0 0 260 260" role="img" aria-label="阿美族八角星集點圖"></svg>
-                    <div class="star-caption">完成表單後第 1 個菱形預設收集；報名完成取得第 2 個菱形。</div>
+                    <div class="star-caption">第一枚星芒已點亮；完成真名報到後開始闖關。</div>
                   </div>
                 </div>
               </div>
               <div class="subhead">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-                <h3>登記姓名取得第 2 顆</h3>
+                <h3>真名報到取得第 2 枚</h3>
               </div>
               <div class="form-grid" style="margin-bottom:16px;">
                 <label>
-                  <strong>姓名</strong>
-                  <input id="participantName" autocomplete="name" placeholder="例如：林小山">
+                  <strong>真實姓名</strong>
+                  <input id="participantName" autocomplete="name" placeholder="請填寫真實姓名">
+                  <span class="field-note">抽獎領獎時會核對身份，請不要填暱稱。</span>
                 </label>
                 <label>
                   <strong>身分別</strong>
@@ -1148,7 +1233,7 @@
                 </label>
                 <button class="primary" id="createParticipantBtn">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                  完成報名
+                  完成真名報到
                 </button>
               </div>
               <div class="registration-status" id="registrationStatus"></div>
@@ -1181,6 +1266,27 @@
                   </div>
                   <div class="star-layout">
                     <div class="diamond-list" id="stampGrid"></div>
+                    <div class="checkpoint-panel is-hidden" id="checkpointPanel" aria-live="polite">
+                      <div class="checkpoint-panel-head">
+                        <h3 id="checkpointTitle">任務密語</h3>
+                        <button class="ghost" id="checkpointCancelBtn" type="button">收起</button>
+                      </div>
+                      <p id="checkpointHint">輸入該站關主提供的密語，正確後這枚星芒就會點亮。</p>
+                      <div class="checkpoint-actions">
+                        <label>
+                          <strong>關卡密語</strong>
+                          <input id="checkpointPin" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" placeholder="輸入三位數密語">
+                        </label>
+                        <button class="primary" id="checkpointAwardBtn" type="button">
+                          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                          點亮星芒
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="celebration-banner is-hidden" id="completionBanner">
+                    <strong>恭喜取得抽獎資格！</strong>
+                    <span id="completionText">八枚星芒已集滿，完成時間會自動送出。</span>
                   </div>
                 </div>
 
@@ -1419,7 +1525,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "salimpo.onlineCheckpoint.v3";
+    const STORAGE_KEY = "salimpo.onlineCheckpoint.v4";
     const ADMIN_SESSION_KEY = "salimpo.dashboardUnlocked.v1";
     const ADMIN_PASSWORD = "8888";
     const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
@@ -1435,14 +1541,14 @@
     const DEFAULT_STATION_ID = "s2";
     const FORM_STATION_ID = "s1";
     const STATIONS = [
-      { id: "s1", number: 1, title: "問卷完成", theme: "表單問卷", host: "表單自動", pin: "", legacyPins: [], canAward: false },
-      { id: "s2", number: 2, title: "完成報名", theme: "報名完成", host: "系統自動", pin: "", legacyPins: [], canAward: false },
-      { id: "s3", number: 3, title: "cengel", theme: "cengel", host: "cengel 關主", pin: "212", legacyPins: [] },
-      { id: "s4", number: 4, title: "Ilisin", theme: "Ilisin", host: "Ilisin 關主", pin: "323", legacyPins: [] },
-      { id: "s5", number: 5, title: "Dateng", theme: "Dateng", host: "Dateng 關主", pin: "434", legacyPins: [] },
-      { id: "s6", number: 6, title: "Asa’", theme: "Asa’", host: "Asa’ 關主", pin: "545", legacyPins: [] },
-      { id: "s7", number: 7, title: "Mipacing", theme: "Mipacing", host: "Mipacing 關主", pin: "656", legacyPins: [] },
-      { id: "s8", number: 8, title: "noka", theme: "noka", host: "noka 關主", pin: "767", legacyPins: [] }
+      { id: "s1", number: 1, title: "問卷通關", theme: "入口星芒", host: "自動點亮", pin: "", legacyPins: [], canAward: false },
+      { id: "s2", number: 2, title: "真名報到", theme: "報到星芒", host: "自動點亮", pin: "", legacyPins: [], canAward: false },
+      { id: "s3", number: 3, title: "cengel", theme: "第 3 站", host: "密語 212", pin: "212", legacyPins: [] },
+      { id: "s4", number: 4, title: "Ilisin", theme: "第 4 站", host: "密語 323", pin: "323", legacyPins: [] },
+      { id: "s5", number: 5, title: "Dateng", theme: "第 5 站", host: "密語 434", pin: "434", legacyPins: [] },
+      { id: "s6", number: 6, title: "Asa’", theme: "第 6 站", host: "密語 545", pin: "545", legacyPins: [] },
+      { id: "s7", number: 7, title: "Mipacing", theme: "第 7 站", host: "密語 656", pin: "656", legacyPins: [] },
+      { id: "s8", number: 8, title: "noka", theme: "第 8 站", host: "密語 767", pin: "767", legacyPins: [] }
     ];
     const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {
@@ -1504,6 +1610,8 @@
       const fallbackUrl = GOOGLE_SHEET_API_URL.trim();
       try {
         const params = new URLSearchParams(location.search);
+        const offlineMode = ["1", "true", "yes"].includes(String(params.get("offline") || "").trim().toLowerCase());
+        if (offlineMode) return "";
         const apiUrlFromParam = (params.get("api") || "").trim();
         if (apiUrlFromParam) {
           localStorage.setItem(API_URL_STORAGE_KEY, apiUrlFromParam);
@@ -1516,23 +1624,16 @@
     }
 
     function readFormEntryCompleted() {
-      const truthy = new Set(["1", "true", "yes", "done", "completed", "complete"]);
-      try {
-        const params = new URLSearchParams(location.search);
-        return truthy.has(String(params.get("form") || "").trim().toLowerCase())
-          || truthy.has(String(params.get("formDone") || "").trim().toLowerCase())
-          || String(params.get("from") || "").trim().toLowerCase() === "form";
-      } catch (error) {
-        return false;
-      }
+      return true;
     }
 
     const SHEET_API_URL = readConfiguredApiUrl();
     const formEntryCompleted = readFormEntryCompleted();
     let apiRequestId = 0;
     let syncStatus = SHEET_API_URL
-      ? { kind: "warn", text: "Google Sheet 同步準備中..." }
-      : { kind: "warn", text: "目前尚未填入 Google Sheet API，資料只會存在這台裝置。" };
+      ? { kind: "warn", text: "任務名單連線中..." }
+      : { kind: "warn", text: "試玩模式：資料只保存在這台裝置。" };
+    const completionSyncCodes = new Set();
 
     function cleanCodeText(value) {
       return String(value || "").trim().toUpperCase().replace(/[^0-9A-Z]/g, "");
@@ -1728,6 +1829,26 @@
       return null;
     }
 
+    function entryPreviewParticipant() {
+      return {
+        code: "",
+        name: "問卷通關者",
+        group: "",
+        createdAt: "",
+        stamps: {
+          [FORM_STATION_ID]: stationStamp(FORM_STATION_ID, "自動點亮")
+        }
+      };
+    }
+
+    function visibleParticipant() {
+      return activeParticipant() || entryPreviewParticipant();
+    }
+
+    function isComplete(participant) {
+      return countStamps(participant) === STATIONS.length;
+    }
+
     function normalizeIdentity(value) {
       return IDENTITY_OPTIONS.includes(value) ? value : "學生";
     }
@@ -1860,13 +1981,13 @@
         return false;
       }
       try {
-        if (!quiet) setSyncStatus("warn", "正在同步 Google Sheet...");
+        if (!quiet) setSyncStatus("warn", "正在同步任務名單...");
         const data = await sheetRequest("state");
         applyRemoteState(data.state || {});
-        setSyncStatus("ok", "Google Sheet 已同步，所有裝置共用同一份資料。");
+        setSyncStatus("ok", "任務名單已同步。");
         return true;
       } catch (error) {
-        setSyncStatus("warn", `Google Sheet 同步失敗：${error.message}`);
+        setSyncStatus("warn", `任務名單同步失敗：${error.message}`);
         return false;
       }
     }
@@ -1874,12 +1995,7 @@
     function renderAll() {
       renderSyncStatus();
       renderFormEntryStatus();
-      renderMetrics();
       renderParticipant();
-      renderStations();
-      renderLogs();
-      renderDashboard();
-      renderHostInputs();
     }
 
     function renderFormEntryStatus() {
@@ -1903,44 +2019,51 @@
     }
 
     function renderParticipant() {
-      const participant = activeParticipant();
-      if (!participant) {
-        document.getElementById("displayName").textContent = "尚未建立參加者";
-        document.getElementById("displayMeta").textContent = "請先建立參加者代碼";
-        document.getElementById("participantCode").textContent = "未建立";
-        document.getElementById("progressCount").textContent = "0/8";
-        document.getElementById("participantName").value = "";
-        document.getElementById("participantGroup").value = "學生";
-        document.getElementById("stampGrid").innerHTML = "";
-        renderAmisStar(null);
-        renderParticipantQr(null);
-        return;
-      }
+      const realParticipant = activeParticipant();
+      const participant = visibleParticipant();
       const complete = countStamps(participant);
-      const participantCode = displayParticipantCode(participant);
-      document.getElementById("displayName").textContent = participant.name || "未命名參加者";
-      document.getElementById("displayMeta").textContent = `${normalizeIdentity(participant.group)} · ${participantCode}`;
-      document.getElementById("participantCode").textContent = participantCode;
+      const participantCode = displayParticipantCode(realParticipant);
+      document.getElementById("displayName").textContent = realParticipant?.name || "問卷已通關";
+      document.getElementById("displayMeta").textContent = realParticipant
+        ? `${normalizeIdentity(realParticipant.group)} · 任務編號 ${participantCode}`
+        : "請先完成真名報到，開啟後續星芒任務";
+      const participantCodeElement = document.getElementById("participantCode");
+      if (participantCodeElement) participantCodeElement.textContent = participantCode || "報到後產生";
       document.getElementById("progressCount").textContent = `${complete}/8`;
-      document.getElementById("participantName").value = participant.name || "";
-      document.getElementById("participantGroup").value = normalizeIdentity(participant.group);
+      if (realParticipant) {
+        document.getElementById("participantName").value = realParticipant.name || "";
+        document.getElementById("participantGroup").value = normalizeIdentity(realParticipant.group);
+      }
       renderAmisStar(participant);
-      renderParticipantQr(participant);
+      renderParticipantQr(realParticipant);
+      renderCompletionBanner(realParticipant);
+      syncCompletionIfNeeded(realParticipant);
 
       const grid = document.getElementById("stampGrid");
       grid.innerHTML = "";
       STATIONS.forEach((station, index) => {
         const stamp = participant.stamps?.[station.id];
+        const canOpen = realParticipant && station.canAward !== false && !stamp;
+        const needsRegistration = !realParticipant && station.canAward !== false;
         const item = document.createElement("article");
-        item.className = `diamond-row${stamp ? " done" : ""}`;
+        item.className = `diamond-row${stamp ? " done" : ""}${canOpen ? " actionable" : ""}${needsRegistration ? " locked" : ""}`;
         item.style.setProperty("--piece", STATION_COLORS[index]);
+        if (canOpen) {
+          item.dataset.station = station.id;
+          item.tabIndex = 0;
+          item.setAttribute("role", "button");
+          item.setAttribute("aria-label", `點選 ${station.title} 輸入關卡密語`);
+        }
+        const statusText = stamp
+          ? "已點亮"
+          : (station.canAward === false ? "待報到" : (realParticipant ? "點選輸密語" : "先報到"));
         item.innerHTML = `
           <div class="diamond-token"><span>${station.number}</span></div>
           <div class="diamond-main">
             <div class="station-title">${station.title}</div>
-            <div class="station-subtitle">${station.theme} · ${station.host}</div>
+            <div class="station-subtitle">${station.theme}</div>
           </div>
-          <div class="status-pill">${stamp ? "取得菱形" : "待闖關"}</div>
+          <div class="status-pill">${statusText}</div>
         `;
         grid.appendChild(item);
       });
@@ -2196,11 +2319,26 @@
 
     function renderParticipantQr(participant) {
       const qrCode = document.getElementById("qrCode");
+      if (!qrCode) return;
       if (!participant) {
         qrCode.innerHTML = `<div class="qr-empty">完成報名後<br>自動產生專屬 QR</div>`;
         return;
       }
       qrCode.innerHTML = qrSvg(participantQrUrl(participant));
+    }
+
+    function removeLegacySurfaces() {
+      [
+        "nav",
+        "#view-host",
+        "#view-dashboard",
+        "#view-flow",
+        ".ticket",
+        ".form-challenge",
+        ".panel-head > .quick-actions"
+      ].forEach((selector) => {
+        document.querySelector(selector)?.remove();
+      });
     }
 
     function renderStations() {
@@ -2282,6 +2420,34 @@
       });
     }
 
+    function renderCompletionBanner(participant) {
+      const banner = document.getElementById("completionBanner");
+      const text = document.getElementById("completionText");
+      if (!banner || !text) return;
+      if (!participant || !isComplete(participant)) {
+        banner.classList.add("is-hidden");
+        return;
+      }
+      const completedAt = participant.completedAt ? formatTime(participant.completedAt) : formatTime(new Date().toISOString());
+      text.textContent = `${participant.name} 已集滿八枚星芒，完成時間：${completedAt}。資料會自動送進抽獎名單。`;
+      banner.classList.remove("is-hidden");
+    }
+
+    async function syncCompletionIfNeeded(participant) {
+      if (!participant || !isComplete(participant) || !SHEET_API_URL) return;
+      const code = displayParticipantCode(participant);
+      if (!code || participant.completedAt || completionSyncCodes.has(code)) return;
+      completionSyncCodes.add(code);
+      try {
+        const data = await sheetRequest("complete", { code });
+        applyRemoteState(data.state || {}, code);
+        setSyncStatus("ok", "八角星完成，已加入抽獎名單。");
+      } catch (error) {
+        completionSyncCodes.delete(code);
+        setSyncStatus("warn", `抽獎資格同步失敗：${error.message}`);
+      }
+    }
+
     function showHostStatus(kind, text) {
       const status = document.getElementById("hostStatus");
       status.className = `status-banner show ${kind}`;
@@ -2298,7 +2464,7 @@
       const name = document.getElementById("participantName").value.trim();
       const group = normalizeIdentity(document.getElementById("participantGroup").value);
       if (!name) {
-        showRegistrationStatus("warn", "請先填寫姓名，後台才有可抽獎的登記資料。");
+        showRegistrationStatus("warn", "請填寫真實姓名，抽獎領獎時會用來核對身份。");
         return;
       }
       const createButton = document.getElementById("createParticipantBtn");
@@ -2328,8 +2494,8 @@
             }
           }
           applyRemoteState(nextState, nextParticipant?.code || nextCode || state.activeCode);
-          setSyncStatus(formSyncWarning ? "warn" : "ok", formSyncWarning || "報名已寫入 Google Sheet。");
-          showRegistrationStatus(formSyncWarning ? "warn" : "ok", `${nextParticipant?.name || name} 已完成報名，已產生參加者代碼：${displayParticipantCode(nextParticipant)}。${formSyncWarning ? "報名已成功，但第 1 顆問卷菱形需要主控端確認。" : (formEntryCompleted ? "第 1 顆問卷與第 2 顆報名已收集。" : "若已完成表單，請從表單完成頁連結回來補上第 1 顆。")}`);
+          setSyncStatus(formSyncWarning ? "warn" : "ok", formSyncWarning || "報到已寫入任務名單。");
+          showRegistrationStatus(formSyncWarning ? "warn" : "ok", `${nextParticipant?.name || name} 報到完成，前兩枚星芒已點亮。現在可以點選任務卡上的下一站。${formSyncWarning ? "第 1 枚問卷星芒需要主控端確認。" : ""}`);
           return;
         }
         if (!participant || (!sameParticipant && !importedPlaceholder)) {
@@ -2349,7 +2515,7 @@
           ensureEntryStamps(participant);
         }
         saveState();
-        showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。${formEntryCompleted ? "第 1 顆問卷與第 2 顆報名已收集。" : "若已完成表單，請從表單完成頁連結回來補上第 1 顆。"}`);
+        showRegistrationStatus("ok", `${participant.name} 報到完成，前兩枚星芒已點亮。現在可以點選任務卡上的下一站。`);
         renderAll();
       } catch (error) {
         showRegistrationStatus("warn", error.message);
@@ -2360,6 +2526,94 @@
 
     function showFormStationHint() {
       showRegistrationStatus("warn", "請送出 Google 表單後，在完成頁點集點卡連結回來。");
+    }
+
+    function openCheckpointPanel(stationId) {
+      const participant = activeParticipant();
+      const station = stationById(stationId);
+      if (!participant) {
+        showRegistrationStatus("warn", "請先完成真名報到，再開始收集後面的星芒。");
+        document.getElementById("participantName").focus();
+        return;
+      }
+      if (!station || station.canAward === false) return;
+      if (participant.stamps?.[station.id]) {
+        showRegistrationStatus("ok", `${station.title} 已經點亮。`);
+        return;
+      }
+      state.selectedStationId = station.id;
+      saveState();
+      document.getElementById("checkpointTitle").textContent = `${station.number}. ${station.title}`;
+      document.getElementById("checkpointHint").textContent = `輸入 ${station.theme} 的關卡密語，正確後這枚星芒會立刻點亮。`;
+      document.getElementById("checkpointPin").value = "";
+      document.getElementById("checkpointPanel").classList.remove("is-hidden");
+      document.getElementById("checkpointPin").focus();
+    }
+
+    function closeCheckpointPanel() {
+      document.getElementById("checkpointPanel").classList.add("is-hidden");
+      document.getElementById("checkpointPin").value = "";
+    }
+
+    async function awardSelectedCheckpoint() {
+      const participant = activeParticipant();
+      const station = stationById(state.selectedStationId);
+      const pin = document.getElementById("checkpointPin").value;
+      if (!participant) {
+        showRegistrationStatus("warn", "請先完成真名報到，再開始收集後面的星芒。");
+        closeCheckpointPanel();
+        return;
+      }
+      if (!station || station.canAward === false) {
+        showRegistrationStatus("warn", "這一枚星芒會自動點亮，不需要輸入密語。");
+        closeCheckpointPanel();
+        return;
+      }
+      if (!isValidStationPin(station, pin)) {
+        showRegistrationStatus("warn", `${station.title} 密語不正確，請向該站關主確認後再試一次。`);
+        document.getElementById("checkpointPin").select();
+        return;
+      }
+      const code = displayParticipantCode(participant);
+      if (SHEET_API_URL) {
+        try {
+          const data = await sheetRequest("award", { code, stationId: station.id, pin });
+          applyRemoteState(data.state || {}, code);
+          closeCheckpointPanel();
+          const completedNow = Boolean(data.completed || data.participant?.completedAt || isComplete(data.participant));
+          showRegistrationStatus(data.already ? "warn" : "ok", data.already
+            ? `${station.title} 已經點亮，繼續前往下一站。`
+            : (completedNow ? "八枚星芒全部點亮，恭喜取得抽獎資格！" : `${station.title} 星芒點亮！`));
+          document.getElementById("view-participant").scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch (error) {
+          showRegistrationStatus("warn", error.message);
+        }
+        return;
+      }
+      if (participant.stamps?.[station.id]) {
+        showRegistrationStatus("ok", `${station.title} 已經點亮。`);
+        closeCheckpointPanel();
+        return;
+      }
+      const stamp = {
+        stationId: station.id,
+        host: station.host,
+        time: new Date().toISOString()
+      };
+      participant.stamps = participant.stamps || {};
+      participant.stamps[station.id] = stamp;
+      state.logs.unshift({ code, ...stamp });
+      state.activeCode = code;
+      if (isComplete(participant) && !participant.completedAt) {
+        participant.completedAt = new Date().toISOString();
+      }
+      saveState();
+      closeCheckpointPanel();
+      showRegistrationStatus("ok", isComplete(participant)
+        ? "八枚星芒全部點亮，恭喜取得抽獎資格！"
+        : `${station.title} 星芒點亮！`);
+      renderAll();
+      document.getElementById("view-participant").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     async function awardStamp() {
@@ -2488,6 +2742,25 @@
     });
     document.getElementById("createParticipantBtn").addEventListener("click", createOrUpdateParticipant);
     document.getElementById("completeFormStationBtn").addEventListener("click", showFormStationHint);
+    document.getElementById("stampGrid").addEventListener("click", (event) => {
+      const item = event.target.closest("[data-station]");
+      if (!item) return;
+      openCheckpointPanel(item.dataset.station);
+    });
+    document.getElementById("stampGrid").addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const item = event.target.closest("[data-station]");
+      if (!item) return;
+      event.preventDefault();
+      openCheckpointPanel(item.dataset.station);
+    });
+    document.getElementById("checkpointAwardBtn").addEventListener("click", awardSelectedCheckpoint);
+    document.getElementById("checkpointCancelBtn").addEventListener("click", closeCheckpointPanel);
+    document.getElementById("checkpointPin").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        awardSelectedCheckpoint();
+      }
+    });
     document.getElementById("awardBtn").addEventListener("click", awardStamp);
     document.getElementById("useActiveCodeBtn").addEventListener("click", () => {
       const participant = activeParticipant();
@@ -2560,12 +2833,15 @@
     const incomingParticipantCode = applyIncomingParticipant();
     renderAll();
     updateDashboardAccess();
+    removeLegacySurfaces();
     if (incomingParticipantCode) {
-      document.getElementById("awardCode").value = incomingParticipantCode;
+      const awardCodeInput = document.getElementById("awardCode");
+      if (awardCodeInput) awardCodeInput.value = incomingParticipantCode;
     }
     refreshStateFromRemote({ quiet: true }).then(() => {
       if (incomingParticipantCode) {
-        document.getElementById("awardCode").value = incomingParticipantCode;
+        const awardCodeInput = document.getElementById("awardCode");
+        if (awardCodeInput) awardCodeInput.value = incomingParticipantCode;
       }
     });
   </script>

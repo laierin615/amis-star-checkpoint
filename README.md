@@ -2,7 +2,7 @@
 
 ## 檔案
 
-- `index.html`：可直接開啟的互動頁，包含報名集點卡、每位參加者專屬 QR、關主核發菱形、後台表格、抽獎名單、流程規劃。
+- `index.html`：可直接開啟的單頁任務卡，包含真名報到、八角星集點、關卡密語核發、抽獎資格提示。
 - `embed-snippet.html`：可貼到網站或課程頁面的 iframe 範例。
 - `google-apps-script/Code.gs`：Google Sheet 後端腳本，負責跨裝置報名發號、核點、防重複。
 
@@ -10,25 +10,27 @@
 
 公開網址：https://laierin615.github.io/amis-star-checkpoint/
 
-主控台密碼：`8888`
-
 Google Sheet Web App URL：
 `https://script.google.com/macros/s/AKfycbx5kZOqyM8Vxd5GisPf_pXkJ5PwaD9zJNs1erPmi4HMXoBTinA6-_iNEIY05K1QLYcW/exec`
 
+目標 Google Sheet：
+`https://docs.google.com/spreadsheets/d/1uaU1pF7ybSVMT5tZ6KKB3hayY5XEz2k01Z4qA_SzBs0/edit?gid=988575064#gid=988575064`
+
 現場簡化版：
 
-- 現場入口 QR code：請先放 Google 表單 QR code。
-- 表單完成頁連結：Google 表單送出後的確認訊息放集點卡入口 `https://laierin615.github.io/amis-star-checkpoint/?v=20260617-formfirst&form=done`。
-- 第 1 關問卷完成：參加者從表單完成頁點進集點卡後，報名時會自動收集第一個菱形。
-- 第 2 關完成報名：填姓名與身分別後取得參加者代碼，並收集第二個菱形。
-- 給點密碼：第 3 到第 8 關由關主輸入指定密碼核發菱形。
-- 參加者代碼：三碼數字，例如 `001`、`002`、`003`；手動輸入時只打 `1` 也會自動對到 `001`。
+- 現場入口 QR code：請放 Google 表單 QR code。
+- 表單最後一頁連結：Google 表單送出後的確認訊息放集點卡入口 `https://laierin615.github.io/amis-star-checkpoint/?v=20260617-formfirst&form=done`。
+- 第 1 關問卷通關：進入集點卡後預設點亮。
+- 第 2 關真名報到：填真實姓名與身分別後自動寫入 Google Sheet，並點亮第二枚星芒。
+- 第 3 到第 8 關：參加者直接點任務卡上的關卡，輸入該站密語，正確後點亮星芒。
+- 集滿八枚星芒：畫面出現「恭喜取得抽獎資格」，並將姓名與完成時間寫入 Google Sheet 的 `completions` 工作表。
+- 參加者代碼：系統內部用三碼數字，例如 `001`、`002`、`003`。
 - 舊版參加者代碼 `NP115001` 仍可掃描或輸入，系統會自動轉成 `001`。
 
 八個關卡：
 
-1. 問卷完成：表單完成頁進入後，報名時自動核發
-2. 完成報名：系統自動核發
+1. 問卷通關：進入任務卡後自動點亮
+2. 真名報到：系統自動點亮
 3. cengel：給點密碼 `212`
 4. Ilisin：給點密碼 `323`
 5. Dateng：給點密碼 `434`
@@ -36,7 +38,7 @@ Google Sheet Web App URL：
 7. Mipacing：給點密碼 `656`
 8. noka：給點密碼 `767`
 
-注意：多台手機同時報名、關主使用不同裝置給點時，必須填入 Google Sheet Apps Script URL，才會全場共用同一份資料並保證代碼不重複。
+注意：多台手機同時報名時，必須填入 Google Sheet Apps Script URL，才會全場共用同一份資料並保證代碼不重複。
 
 ## 推薦流程
 
@@ -45,39 +47,34 @@ Google Sheet Web App URL：
 1. 建立 Google Sheet，並部署 `google-apps-script/Code.gs`。
 2. Google 表單 QR code 放在現場入口，讓參加者先完成問卷。
 3. 在 Google 表單「送出後確認訊息」放入集點卡入口：`https://laierin615.github.io/amis-star-checkpoint/?v=20260617-formfirst&form=done`。
-4. 參加者從表單完成頁進入集點卡後，登記姓名與身分別；系統自動產生參加者代碼與 QR code，並核發第 1 關「問卷完成」與第 2 關「完成報名」菱形。
-5. 產生第 3 到第 8 關的關主給點流程；參加者代碼由 QR 自動帶入，關主只輸入給點密碼。
-6. 印出或發送參加者 QR 卡，關主手機先測試掃碼與核發菱形。
+4. 參加者從表單完成頁進入任務卡後，第 1 枚「問卷通關」星芒預設點亮。
+5. 參加者填真實姓名與身分別完成報到；系統自動寫入 Google Sheet 並點亮第 2 枚「真名報到」星芒。
+6. 關主只需要提供該站密語，不需要另外開關主頁。
 
 ### 2. 闖關中
 
 1. 參加者先掃 Google 表單 QR，送出問卷。
 2. 在表單完成頁點集點卡連結，進入後登記姓名與身分別。
-3. 報名完成後，第 1 關「問卷完成」與第 2 關「完成報名」菱形亮起。
-4. 參加者完成第 3 到第 8 關任務後，出示自己的專屬 QR 或參加者代碼。
-5. 關主用自己的手機開啟「關主給點」頁。
-6. 關主掃參加者 QR 後，系統自動帶入參加者代碼。
-7. 關主確認任務通過後，只輸入給點密碼並按「核發菱形」。
-8. 系統檢查：給點密碼是否正確、參加者是否存在、該關是否已經給過點。
-9. 成功後該菱形亮起，八關集滿後組成阿美族八角星圖騰。
+3. 報到完成後，第 1 枚「問卷通關」與第 2 枚「真名報到」星芒亮起。
+4. 參加者完成第 3 到第 8 關任務後，直接點任務卡上的該關。
+5. 輸入該站關主提供的三位數密語。
+6. 密語正確後該星芒亮起，畫面回到任務卡。
+7. 八枚星芒集滿後，畫面顯示抽獎資格，系統自動寫入姓名與完成時間。
 
 ### 3. 收尾
 
-1. 主控台查看完成八個菱形、缺少關卡、重複或異常紀錄。
-2. 匯出完整後台表格，或只匯出完成八角星的抽獎名單。
-3. 關閉關主給點權限，避免活動後繼續被修改。
+1. 查看 Google Sheet 的 `participants`、`stamps`、`completions` 工作表。
+2. `completions` 會列出已取得抽獎資格者的姓名與完成時間。
+3. 若網路中斷，關主可先紙本記錄，活動後再補登。
 
 ## 關主如何給點
 
-推薦採用「關主掃參加者 QR」：
+新版採用「參加者點任務卡，關主提供密語」：
 
-1. 關主選擇自己的關卡，輸入該關卡給點密碼。
-2. 參加者完成任務後，關主掃參加者專屬 QR。
-3. 畫面顯示參加者姓名、身分別、目前完成關卡。
-4. 關主按「核發本關菱形」。
-5. 系統寫入 `participant_id + station_id + host_id + timestamp`。
-
-這個模式比「參加者掃關卡 QR」可靠，因為參加者不能自己觸發核發菱形。若現場希望參加者掃關卡 QR，建議加一道關主當場告知的一次性口令，或每 10 到 15 分鐘更換一次關卡口令。
+1. 參加者完成該站任務後，點自己的任務卡關卡。
+2. 關主確認通過後，提供該站三位數密語。
+3. 參加者輸入密語，正確後該星芒亮起。
+4. 系統寫入 `participant_id + station_id + host + timestamp`。
 
 ## 資料表設計
 
@@ -86,17 +83,16 @@ Google Sheet Web App URL：
 | 欄位 | 說明 |
 | --- | --- |
 | `participant_id` | 參加者唯一代碼，例如 `001` |
-| `name` | 姓名 |
+| `name` | 真實姓名 |
 | `group_name` | 身分別：學生、來賓、家長、師長 |
-| `qr_url` | 參加者專屬 QR 對應網址 |
 | `created_at` | 建立時間 |
-| `raffle_eligible` | 是否完成八個菱形，可由系統依紀錄自動計算 |
+| `updated_at` | 更新時間 |
 
 ### stations
 
 | 欄位 | 說明 |
 | --- | --- |
-| `station_id` | 關卡代碼，例如 `s1` 問卷完成、`s2` 完成報名、`s3` 到 `s8` 為關主核發關卡 |
+| `station_id` | 關卡代碼，例如 `s1` 問卷通關、`s2` 真名報到、`s3` 到 `s8` 為密語關卡 |
 | `station_name` | 關卡名稱 |
 | `host_name` | 關主姓名 |
 | `host_pin` | 給點密碼，正式版應雜湊或放在後端 |
@@ -109,11 +105,19 @@ Google Sheet Web App URL：
 | `stamp_id` | 單筆核點紀錄 |
 | `participant_id` | 參加者代碼 |
 | `station_id` | 關卡代碼 |
-| `host_id` | 關主代碼 |
+| `host_id` | 關卡註記 |
 | `created_at` | 核點時間 |
-| `device_note` | 裝置或備註，方便查核 |
 
 `stamps` 需要維持同一個 `participant_id + station_id` 只能存在一筆，這樣可以阻擋同一關重複核發菱形。抽獎名單由完成八個關卡的參加者自動產生。
+
+### completions
+
+| 欄位 | 說明 |
+| --- | --- |
+| `code` | 參加者代碼 |
+| `name` | 真實姓名 |
+| `group` | 身分別 |
+| `completed_at` | 完成八角星時間 |
 
 ## 快速上線方案
 
@@ -123,7 +127,7 @@ Google Sheet Web App URL：
 
 設定步驟：
 
-1. 新增一份 Google Sheet。
+1. 使用指定 Google Sheet，或將 `SPREADSHEET_ID` 改成新的 Sheet ID。
 2. 在 Google Sheet 內開啟「擴充功能」→「Apps Script」。
 3. 把 `google-apps-script/Code.gs` 全部貼上並儲存。
 4. 先執行一次 `setup` 或 `doGet`，依畫面完成授權。
@@ -155,7 +159,7 @@ https://laierin615.github.io/amis-star-checkpoint/?api=貼上URL編碼後的WebA
 - 每位關主準備一張紙本補登表：參加者代碼、時間、是否通過。
 - 主控端準備一支可分享網路的手機或行動網路。
 - 若網路中斷，關主先紙本記錄，活動後由主控端批次補登。
-- 參加者 QR 卡建議同時印出代碼，掃碼失敗時可手動輸入。
+- 參加者若手機斷線，請先記下真實姓名與已通過關卡，活動後由主控端補登。
 
 ## 嵌入方式
 
@@ -164,7 +168,7 @@ https://laierin615.github.io/amis-star-checkpoint/?api=貼上URL編碼後的WebA
 ```html
 <iframe
   src="/online_checkpoint_stamp/index.html"
-  title="八角星線上集點"
+  title="Salimpo 八角星任務卡"
   style="width:100%;height:860px;border:0;"
   loading="lazy"></iframe>
 ```

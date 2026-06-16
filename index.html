@@ -674,26 +674,36 @@
       word-break: break-word;
     }
 
-    .matrix {
-      width: 150px;
+    .qr-code {
+      width: 174px;
       aspect-ratio: 1;
       border: 8px solid #fff;
       outline: 1px solid var(--line);
       background: #fff;
       display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      grid-template-rows: repeat(10, 1fr);
-      gap: 2px;
+      place-items: center;
     }
 
-    .matrix-cell {
-      min-width: 0;
-      min-height: 0;
-      background: #e3ebe7;
-      border-radius: 1px;
+    .qr-code svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      shape-rendering: crispEdges;
     }
 
-    .matrix-cell.on { background: var(--deep-2); }
+    .qr-empty {
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.45;
+      font-size: 13px;
+      padding: 10px;
+    }
+
+    .qr-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
     .quick-actions {
       display: flex;
@@ -1112,10 +1122,20 @@
                     </div>
                     <div class="code-box">
                       <div class="code-label">參加者代碼</div>
-                      <div class="code-value" id="participantCode">NP115001</div>
-                      <div class="matrix" id="matrix" aria-hidden="true"></div>
+                      <div class="code-value" id="participantCode">完成報名後產生</div>
+                      <div class="qr-code" id="qrCode" aria-label="參加者專屬 QR code"></div>
+                      <div class="qr-actions">
+                        <button id="copyQrLinkBtn">
+                          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"/></svg>
+                          複製 QR 連結
+                        </button>
+                        <button id="downloadQrBtn">
+                          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                          下載 QR
+                        </button>
+                      </div>
                     </div>
-                    <div class="callout">正式版建議把這組代碼做成學生專屬 QR。關主掃描後核發菱形，後台會同步整理登記名單與抽獎資格。</div>
+                    <div class="callout">每位參加者完成報名後會產生自己的 QR code。關主掃描後會自動帶入參加代碼，再核發該關菱形。</div>
                   </div>
                 </aside>
               </div>
@@ -1291,6 +1311,7 @@
 
   <script>
     const STORAGE_KEY = "salimpo.onlineCheckpoint.v2";
+    const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
     const STATIONS = [
       { id: "s1", number: 1, title: "關卡一", theme: "山海生活", host: "關主一", pin: "2101" },
       { id: "s2", number: 2, title: "關卡二", theme: "山海人文", host: "關主二", pin: "2102" },
@@ -1395,8 +1416,50 @@
     }
 
     function makeCode() {
-      const seed = Date.now().toString(36).toUpperCase().slice(-5);
+      const seed = `${Date.now().toString(36).slice(-5)}${Math.random().toString(36).slice(2, 5)}`.toUpperCase();
       return `NP${seed}`;
+    }
+
+    function makeUniqueCode() {
+      let code = makeCode();
+      while (state.participants.some((participant) => participant.code === code)) {
+        code = makeCode();
+      }
+      return code;
+    }
+
+    function siteBaseUrl() {
+      if (location.protocol === "https:" && location.hostname !== "127.0.0.1" && location.hostname !== "localhost") {
+        return `${location.origin}${location.pathname}`;
+      }
+      return PUBLIC_SITE_URL;
+    }
+
+    function participantQrUrl(participant) {
+      const url = new URL(siteBaseUrl());
+      url.searchParams.set("p", participant.code);
+      return url.href;
+    }
+
+    function applyIncomingParticipant() {
+      const params = new URLSearchParams(location.search);
+      const rawCode = params.get("p") || params.get("participant") || "";
+      const code = rawCode.trim().toUpperCase();
+      if (!code) return "";
+      let participant = state.participants.find((item) => item.code === code);
+      if (!participant) {
+        participant = {
+          code,
+          name: "QR 掃描匯入",
+          group: "未填",
+          createdAt: new Date().toISOString(),
+          stamps: {}
+        };
+        state.participants.push(participant);
+      }
+      state.activeCode = code;
+      saveState();
+      return code;
     }
 
     function renderAll() {
@@ -1429,7 +1492,7 @@
         document.getElementById("participantGroup").value = "";
         document.getElementById("stampGrid").innerHTML = "";
         renderAmisStar(null);
-        renderMatrix("NP000000");
+        renderParticipantQr(null);
         return;
       }
       const complete = countStamps(participant);
@@ -1440,7 +1503,7 @@
       document.getElementById("participantName").value = participant.name || "";
       document.getElementById("participantGroup").value = participant.group || "";
       renderAmisStar(participant);
-      renderMatrix(participant.code);
+      renderParticipantQr(participant);
 
       const grid = document.getElementById("stampGrid");
       grid.innerHTML = "";
@@ -1510,19 +1573,212 @@
       });
     }
 
-    function renderMatrix(code) {
-      const matrix = document.getElementById("matrix");
-      matrix.innerHTML = "";
-      const source = `${code}-salimpo-checkpoint`;
-      for (let i = 0; i < 100; i += 1) {
-        const cell = document.createElement("span");
-        cell.className = "matrix-cell";
-        const char = source.charCodeAt(i % source.length);
-        if ((char + i * 7 + Math.floor(i / 10)) % 3 === 0 || i < 3 || i > 96) {
-          cell.classList.add("on");
-        }
-        matrix.appendChild(cell);
+    function appendBits(target, value, length) {
+      for (let i = length - 1; i >= 0; i -= 1) {
+        target.push((value >>> i) & 1);
       }
+    }
+
+    function qrDataCodewords(text) {
+      const bytes = Array.from(new TextEncoder().encode(text));
+      const capacity = 86;
+      const bits = [];
+      appendBits(bits, 0x4, 4);
+      appendBits(bits, bytes.length, 8);
+      bytes.forEach((byte) => appendBits(bits, byte, 8));
+      if (bits.length > capacity * 8) {
+        throw new Error("QR content is too long");
+      }
+      appendBits(bits, 0, Math.min(4, capacity * 8 - bits.length));
+      while (bits.length % 8 !== 0) bits.push(0);
+      const codewords = [];
+      for (let i = 0; i < bits.length; i += 8) {
+        let value = 0;
+        for (let j = 0; j < 8; j += 1) value = (value << 1) | bits[i + j];
+        codewords.push(value);
+      }
+      for (let pad = 0; codewords.length < capacity; pad += 1) {
+        codewords.push(pad % 2 === 0 ? 0xec : 0x11);
+      }
+      return codewords;
+    }
+
+    function qrGfMultiply(x, y) {
+      let z = 0;
+      for (let i = 7; i >= 0; i -= 1) {
+        z = (z << 1) ^ ((z >>> 7) * 0x11d);
+        if (((y >>> i) & 1) !== 0) z ^= x;
+      }
+      return z & 0xff;
+    }
+
+    function qrReedSolomonDivisor(degree) {
+      const result = Array(degree).fill(0);
+      result[degree - 1] = 1;
+      let root = 1;
+      for (let i = 0; i < degree; i += 1) {
+        for (let j = 0; j < result.length; j += 1) {
+          result[j] = qrGfMultiply(result[j], root);
+          if (j + 1 < result.length) result[j] ^= result[j + 1];
+        }
+        root = qrGfMultiply(root, 0x02);
+      }
+      return result;
+    }
+
+    function qrReedSolomonRemainder(data, divisor) {
+      const result = Array(divisor.length).fill(0);
+      data.forEach((byte) => {
+        const factor = byte ^ result.shift();
+        result.push(0);
+        divisor.forEach((coefficient, index) => {
+          result[index] ^= qrGfMultiply(coefficient, factor);
+        });
+      });
+      return result;
+    }
+
+    function qrAllCodewords(text) {
+      const data = qrDataCodewords(text);
+      const divisor = qrReedSolomonDivisor(24);
+      const blocks = [data.slice(0, 43), data.slice(43, 86)];
+      const ecc = blocks.map((block) => qrReedSolomonRemainder(block, divisor));
+      const result = [];
+      for (let i = 0; i < 43; i += 1) {
+        blocks.forEach((block) => result.push(block[i]));
+      }
+      for (let i = 0; i < 24; i += 1) {
+        ecc.forEach((block) => result.push(block[i]));
+      }
+      return result;
+    }
+
+    function qrFormatBits(mask) {
+      const data = mask;
+      let remainder = data << 10;
+      for (let i = 14; i >= 10; i -= 1) {
+        if (((remainder >>> i) & 1) !== 0) remainder ^= 0x537 << (i - 10);
+      }
+      return ((data << 10) | remainder) ^ 0x5412;
+    }
+
+    function createQrModules(text) {
+      const version = 5;
+      const size = 17 + version * 4;
+      const mask = 0;
+      const modules = Array.from({ length: size }, () => Array(size).fill(false));
+      const isFunction = Array.from({ length: size }, () => Array(size).fill(false));
+
+      function setFunction(x, y, dark) {
+        modules[y][x] = dark;
+        isFunction[y][x] = true;
+      }
+
+      function reserveFunction(x, y) {
+        isFunction[y][x] = true;
+      }
+
+      function drawFinder(left, top) {
+        for (let y = -1; y <= 7; y += 1) {
+          for (let x = -1; x <= 7; x += 1) {
+            const xx = left + x;
+            const yy = top + y;
+            if (xx < 0 || xx >= size || yy < 0 || yy >= size) continue;
+            const dark = x >= 0 && x <= 6 && y >= 0 && y <= 6
+              && (x === 0 || x === 6 || y === 0 || y === 6 || (x >= 2 && x <= 4 && y >= 2 && y <= 4));
+            setFunction(xx, yy, dark);
+          }
+        }
+      }
+
+      function drawAlignment(centerX, centerY) {
+        for (let y = -2; y <= 2; y += 1) {
+          for (let x = -2; x <= 2; x += 1) {
+            setFunction(centerX + x, centerY + y, Math.max(Math.abs(x), Math.abs(y)) !== 1);
+          }
+        }
+      }
+
+      function reserveFormat() {
+        for (let i = 0; i <= 5; i += 1) reserveFunction(8, i);
+        reserveFunction(8, 7);
+        reserveFunction(8, 8);
+        reserveFunction(7, 8);
+        for (let i = 9; i < 15; i += 1) reserveFunction(14 - i, 8);
+        for (let i = 0; i < 8; i += 1) reserveFunction(size - 1 - i, 8);
+        for (let i = 8; i < 15; i += 1) reserveFunction(8, size - 15 + i);
+      }
+
+      function drawFormat() {
+        const bits = qrFormatBits(mask);
+        for (let i = 0; i <= 5; i += 1) setFunction(8, i, ((bits >>> i) & 1) !== 0);
+        setFunction(8, 7, ((bits >>> 6) & 1) !== 0);
+        setFunction(8, 8, ((bits >>> 7) & 1) !== 0);
+        setFunction(7, 8, ((bits >>> 8) & 1) !== 0);
+        for (let i = 9; i < 15; i += 1) setFunction(14 - i, 8, ((bits >>> i) & 1) !== 0);
+        for (let i = 0; i < 8; i += 1) setFunction(size - 1 - i, 8, ((bits >>> i) & 1) !== 0);
+        for (let i = 8; i < 15; i += 1) setFunction(8, size - 15 + i, ((bits >>> i) & 1) !== 0);
+        setFunction(8, size - 8, true);
+      }
+
+      drawFinder(0, 0);
+      drawFinder(size - 7, 0);
+      drawFinder(0, size - 7);
+      drawAlignment(30, 30);
+      for (let i = 8; i < size - 8; i += 1) {
+        setFunction(i, 6, i % 2 === 0);
+        setFunction(6, i, i % 2 === 0);
+      }
+      setFunction(8, 4 * version + 9, true);
+      reserveFormat();
+
+      const bits = [];
+      qrAllCodewords(text).forEach((codeword) => appendBits(bits, codeword, 8));
+      let bitIndex = 0;
+      let upward = true;
+      for (let right = size - 1; right >= 1; right -= 2) {
+        if (right === 6) right = 5;
+        for (let vert = 0; vert < size; vert += 1) {
+          const y = upward ? size - 1 - vert : vert;
+          for (let dx = 0; dx < 2; dx += 1) {
+            const x = right - dx;
+            if (isFunction[y][x]) continue;
+            modules[y][x] = bitIndex < bits.length ? bits[bitIndex] === 1 : false;
+            bitIndex += 1;
+          }
+        }
+        upward = !upward;
+      }
+      for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+          if (!isFunction[y][x] && (x + y) % 2 === 0) modules[y][x] = !modules[y][x];
+        }
+      }
+      drawFormat();
+      return modules;
+    }
+
+    function qrSvg(text) {
+      const modules = createQrModules(text);
+      const size = modules.length;
+      const quiet = 4;
+      const viewSize = size + quiet * 2;
+      const rects = [];
+      for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+          if (modules[y][x]) rects.push(`<rect x="${x + quiet}" y="${y + quiet}" width="1" height="1"/>`);
+        }
+      }
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewSize} ${viewSize}" role="img" aria-label="參加者 QR code"><rect width="100%" height="100%" fill="#fff"/><g fill="#0b4841">${rects.join("")}</g></svg>`;
+    }
+
+    function renderParticipantQr(participant) {
+      const qrCode = document.getElementById("qrCode");
+      if (!participant) {
+        qrCode.innerHTML = `<div class="qr-empty">完成報名後<br>自動產生專屬 QR</div>`;
+        return;
+      }
+      qrCode.innerHTML = qrSvg(participantQrUrl(participant));
     }
 
     function renderStations() {
@@ -1610,9 +1866,11 @@
         return;
       }
       let participant = activeParticipant();
-      if (!participant || participant.code === "NP115001") {
+      const sameParticipant = participant && participant.name === name && (participant.group || "") === group;
+      const importedPlaceholder = participant && (participant.name === "QR 掃描匯入" || participant.name === "現場補登" || participant.name === "未命名學生");
+      if (!participant || (!sameParticipant && !importedPlaceholder)) {
         participant = {
-          code: makeCode(),
+          code: makeUniqueCode(),
           name,
           group,
           createdAt: new Date().toISOString(),
@@ -1625,7 +1883,7 @@
         participant.group = group;
       }
       saveState();
-      showRegistrationStatus("ok", `${participant.name} 已完成報名，參加代碼是 ${participant.code}。`);
+      showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${participant.code}。`);
       renderAll();
     }
 
@@ -1738,11 +1996,42 @@
     });
     document.getElementById("copyCodeBtn").addEventListener("click", async () => {
       const code = activeParticipant()?.code || "";
+      if (!code) {
+        showRegistrationStatus("warn", "請先完成報名，系統才會產生參加代碼。");
+        return;
+      }
       try {
         await navigator.clipboard.writeText(code);
       } catch (error) {
         window.prompt("參加者代碼", code);
       }
+    });
+    document.getElementById("copyQrLinkBtn").addEventListener("click", async () => {
+      const participant = activeParticipant();
+      if (!participant) {
+        showRegistrationStatus("warn", "請先完成報名，系統才會產生專屬 QR 連結。");
+        return;
+      }
+      const url = participantQrUrl(participant);
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch (error) {
+        window.prompt("參加者 QR 連結", url);
+      }
+    });
+    document.getElementById("downloadQrBtn").addEventListener("click", () => {
+      const participant = activeParticipant();
+      const svg = document.querySelector("#qrCode svg");
+      if (!participant || !svg) {
+        showRegistrationStatus("warn", "請先完成報名，系統才會產生可下載的 QR code。");
+        return;
+      }
+      const blob = new Blob([svg.outerHTML], { type: "image/svg+xml;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${participant.code}-qr.svg`;
+      link.click();
+      URL.revokeObjectURL(link.href);
     });
     document.getElementById("printBtn").addEventListener("click", () => window.print());
     document.getElementById("exportCsvBtn").addEventListener("click", () => exportCsv(false));
@@ -1768,7 +2057,11 @@
       document.querySelector('[data-view="participant"]').click();
     });
 
+    const incomingParticipantCode = applyIncomingParticipant();
     renderAll();
+    if (incomingParticipantCode) {
+      document.getElementById("awardCode").value = incomingParticipantCode;
+    }
   </script>
 </body>
 </html>

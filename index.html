@@ -1061,7 +1061,7 @@
       <div class="title-row">
         <div>
           <h1>八角星線上集點</h1>
-          <p class="subtitle">先登記姓名建立集點卡，第一個菱形會自動亮起；完成 1 到 7 關後，八個菱形集滿組成阿美族八角星圖騰，後台自動列入抽獎名單。</p>
+          <p class="subtitle">先完成報名取得第 1 個菱形；第 2 關問卷按下直接完成；第 3 到第 8 關由關主輸入給點密碼，八個菱形集滿後自動列入抽獎名單。</p>
         </div>
         <div class="activity-mark" aria-hidden="true">
           <svg viewBox="0 0 120 120" role="img" aria-label="八角星集點圖案">
@@ -1162,13 +1162,14 @@
                 </button>
               </div>
               <div class="registration-status" id="registrationStatus"></div>
+              <div class="registration-status" id="syncStatus"></div>
               <div class="form-challenge">
                 <div>
                   <div class="subhead" style="margin-bottom:0;">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-                    <h3>起點菱形：預設取得</h3>
+                    <h3>第 2 關：問卷</h3>
                   </div>
-                  <p>按下後會直接完成第 1 關問卷菱形，問卷會另開分頁，做完回來繼續闖關。</p>
+                  <p>完成報名後才能按。按下後會直接完成問卷菱形，問卷另開分頁，做完回來繼續闖關。</p>
                 </div>
                 <a class="button-link primary" id="completeFormStationBtn" href="https://forms.gle/1ZsEmkVoPNFVHNSFA" target="_blank" rel="noopener">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
@@ -1192,7 +1193,7 @@
                     <div class="star-stage">
                       <div class="star-wrap">
                         <svg class="amis-star" id="amisStar" viewBox="0 0 260 260" role="img" aria-label="阿美族八角星集點圖"></svg>
-                        <div class="star-caption">起點菱形會先亮起；完成 1 到 7 關後即完成闖關。</div>
+                        <div class="star-caption">完成報名後第 1 個菱形才會亮起；集滿 8 關即完成闖關。</div>
                       </div>
                     </div>
                     <div class="diamond-list" id="stampGrid"></div>
@@ -1365,8 +1366,8 @@
                   <h3>活動前</h3>
                   <ul>
                     <li>參加者先登記姓名與身分別。</li>
-                    <li>系統建立參加代碼，後台同步形成表格。</li>
-                    <li>七位關主各自拿到自己的給菱形口令。</li>
+                    <li>系統建立參加代碼，報名完成後取得第 1 個菱形。</li>
+                    <li>六個給點關卡各自拿到自己的給菱形密碼。</li>
                   </ul>
                 </div>
                 <div class="flow-step">
@@ -1380,7 +1381,7 @@
                 <div class="flow-step">
                   <h3>收尾</h3>
                   <ul>
-                    <li>起點菱形加上 7 關菱形組成八角星，即完成闖關。</li>
+                    <li>完成報名、問卷與 6 個給點關卡後，八個菱形組成八角星。</li>
                     <li>主控台自動列出可抽獎名單。</li>
                     <li>匯出後台表格，保留活動紀錄。</li>
                   </ul>
@@ -1421,6 +1422,8 @@
     const ADMIN_PASSWORD = "8888";
     const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
     const FORM_STATION_URL = "https://forms.gle/1ZsEmkVoPNFVHNSFA";
+    const GOOGLE_SHEET_API_URL = "";
+    const API_URL_STORAGE_KEY = "salimpo.sheetApiUrl.v1";
     const IDENTITY_OPTIONS = ["學生", "來賓", "家長", "師長"];
     const CODE_COUNTER_KEY = "salimpo.starCheckpoint.nextCode.v1";
     const SIMPLE_CODE_DIGITS = 3;
@@ -1429,14 +1432,14 @@
     const DEFAULT_STATION_ID = "s1";
     const FORM_STATION_ID = "s2";
     const STATIONS = [
-      { id: "s1", number: "✓", title: "起點菱形", theme: "預設取得", host: "系統自動", pin: "", legacyPins: [], canAward: false },
-      { id: "s2", number: 1, title: "問卷", theme: "問卷", host: "問卷自動", pin: "", legacyPins: [], canAward: false },
-      { id: "s3", number: 2, title: "cengel", theme: "cengel", host: "關主二", pin: "212", legacyPins: [] },
-      { id: "s4", number: 3, title: "Ilisin", theme: "Ilisin", host: "關主三", pin: "323", legacyPins: [] },
-      { id: "s5", number: 4, title: "Dateng", theme: "Dateng", host: "關主四", pin: "434", legacyPins: [] },
-      { id: "s6", number: 5, title: "Asa’", theme: "Asa’", host: "關主五", pin: "545", legacyPins: [] },
-      { id: "s7", number: 6, title: "Mipacing", theme: "Mipacing", host: "關主六", pin: "656", legacyPins: [] },
-      { id: "s8", number: 7, title: "noka", theme: "noka", host: "關主七", pin: "767", legacyPins: [] }
+      { id: "s1", number: 1, title: "完成報名", theme: "報名完成", host: "系統自動", pin: "", legacyPins: [], canAward: false },
+      { id: "s2", number: 2, title: "問卷", theme: "問卷", host: "問卷自動", pin: "", legacyPins: [], canAward: false },
+      { id: "s3", number: 3, title: "cengel", theme: "cengel", host: "cengel 關主", pin: "202", legacyPins: [] },
+      { id: "s4", number: 4, title: "Ilisin", theme: "Ilisin", host: "Ilisin 關主", pin: "303", legacyPins: [] },
+      { id: "s5", number: 5, title: "Dateng", theme: "Dateng", host: "Dateng 關主", pin: "404", legacyPins: [] },
+      { id: "s6", number: 6, title: "Asa’", theme: "Asa’", host: "Asa’ 關主", pin: "505", legacyPins: [] },
+      { id: "s7", number: 7, title: "Mipacing", theme: "Mipacing", host: "Mipacing 關主", pin: "606", legacyPins: [] },
+      { id: "s8", number: 8, title: "noka", theme: "noka", host: "noka 關主", pin: "707", legacyPins: [] }
     ];
     const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {
@@ -1494,6 +1497,27 @@
       ]
     };
 
+    function readConfiguredApiUrl() {
+      const fallbackUrl = GOOGLE_SHEET_API_URL.trim();
+      try {
+        const params = new URLSearchParams(location.search);
+        const apiUrlFromParam = (params.get("api") || "").trim();
+        if (apiUrlFromParam) {
+          localStorage.setItem(API_URL_STORAGE_KEY, apiUrlFromParam);
+          return apiUrlFromParam;
+        }
+        return (localStorage.getItem(API_URL_STORAGE_KEY) || fallbackUrl).trim();
+      } catch (error) {
+        return fallbackUrl;
+      }
+    }
+
+    const SHEET_API_URL = readConfiguredApiUrl();
+    let apiRequestId = 0;
+    let syncStatus = SHEET_API_URL
+      ? { kind: "warn", text: "Google Sheet 同步準備中..." }
+      : { kind: "warn", text: "目前尚未填入 Google Sheet API，資料只會存在這台裝置。" };
+
     function cleanCodeText(value) {
       return String(value || "").trim().toUpperCase().replace(/[^0-9A-Z]/g, "");
     }
@@ -1542,7 +1566,6 @@
         usedCodes.add(nextCode);
         if (originalCode) codeRemap.set(originalCode, nextCode);
         if (compactCode) codeRemap.set(compactCode, nextCode);
-        ensureDefaultStamp(participant);
       });
       const activeCode = cleanCodeText(normalized.activeCode);
       normalized.activeCode = codeRemap.get(activeCode) || codeRemap.get(compactParticipantCode(activeCode)) || compactParticipantCode(activeCode);
@@ -1670,7 +1693,9 @@
     }
 
     function activeParticipant() {
-      return findParticipantByCode(state.activeCode) || state.participants[0];
+      const activeCode = compactParticipantCode(state.activeCode);
+      if (activeCode) return findParticipantByCode(activeCode);
+      return state.participants[0];
     }
 
     function normalizeIdentity(value) {
@@ -1730,25 +1755,94 @@
       const rawCode = params.get("p") || params.get("participant") || "";
       const code = compactParticipantCode(rawCode);
       if (!code) return "";
-      let participant = findParticipantByCode(code);
-      if (!participant) {
-        participant = {
-          code,
-          name: "QR 掃描匯入",
-          group: "學生",
-          createdAt: new Date().toISOString(),
-          stamps: {}
-        };
-        ensureDefaultStamp(participant);
-        state.participants.push(participant);
-      }
-      ensureDefaultStamp(participant);
       state.activeCode = code;
       saveState();
       return code;
     }
 
+    function setSyncStatus(kind, text) {
+      syncStatus = { kind, text };
+      renderSyncStatus();
+    }
+
+    function renderSyncStatus() {
+      const status = document.getElementById("syncStatus");
+      if (!status) return;
+      status.className = `registration-status show ${syncStatus.kind}`;
+      status.textContent = syncStatus.text;
+    }
+
+    function applyRemoteState(remoteState, activeCode = state.activeCode) {
+      const selectedStationId = state.selectedStationId;
+      state = normalizeLoadedState({
+        ...structuredClone(blankState),
+        ...(remoteState || {}),
+        selectedStationId,
+        activeCode
+      });
+      saveState();
+      renderAll();
+    }
+
+    function sheetRequest(action, payload = {}) {
+      if (!SHEET_API_URL) return Promise.reject(new Error("尚未設定 Google Sheet API URL"));
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const callbackName = `salimpoSheetCallback_${Date.now()}_${apiRequestId += 1}`;
+        const cleanup = () => {
+          delete window[callbackName];
+          script.remove();
+          clearTimeout(timer);
+        };
+        const finish = (handler, value) => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          handler(value);
+        };
+        const url = new URL(SHEET_API_URL);
+        url.searchParams.set("action", action);
+        url.searchParams.set("callback", callbackName);
+        url.searchParams.set("_", String(Date.now()));
+        Object.entries(payload).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) url.searchParams.set(key, String(value));
+        });
+        const script = document.createElement("script");
+        const timer = window.setTimeout(() => {
+          finish(reject, new Error("Google Sheet 同步逾時，請確認 Apps Script Web App URL。"));
+        }, 12000);
+        window[callbackName] = (data) => {
+          if (!data?.ok) {
+            finish(reject, new Error(data?.error || "Google Sheet 回傳失敗"));
+            return;
+          }
+          finish(resolve, data);
+        };
+        script.onerror = () => finish(reject, new Error("無法連線 Google Sheet API"));
+        script.src = url.href;
+        document.head.appendChild(script);
+      });
+    }
+
+    async function refreshStateFromRemote({ quiet = false } = {}) {
+      if (!SHEET_API_URL) {
+        renderSyncStatus();
+        return false;
+      }
+      try {
+        if (!quiet) setSyncStatus("warn", "正在同步 Google Sheet...");
+        const data = await sheetRequest("state");
+        applyRemoteState(data.state || {});
+        setSyncStatus("ok", "Google Sheet 已同步，所有裝置共用同一份資料。");
+        return true;
+      } catch (error) {
+        setSyncStatus("warn", `Google Sheet 同步失敗：${error.message}`);
+        return false;
+      }
+    }
+
     function renderAll() {
+      renderSyncStatus();
       renderMetrics();
       renderParticipant();
       renderStations();
@@ -2095,7 +2189,7 @@
         pinInput.placeholder = station.pin ? `給點密碼：${station.pin}` : "請先選擇關卡";
       }
       if (codeInput) {
-        codeInput.value = displayParticipantCode(activeParticipant());
+        codeInput.value = displayParticipantCode(activeParticipant()) || compactParticipantCode(state.activeCode);
       }
     }
 
@@ -2173,6 +2267,18 @@
       const sameParticipant = participant && participant.name === name && normalizeIdentity(participant.group) === group;
       const importedPlaceholder = participant && (participant.name === "QR 掃描匯入" || participant.name === "現場補登" || participant.name === "未命名學生" || participant.name === "未命名參加者");
       try {
+        if (SHEET_API_URL) {
+          const data = await sheetRequest("register", {
+            code: participant ? displayParticipantCode(participant) : "",
+            name,
+            group
+          });
+          const nextParticipant = data.participant;
+          applyRemoteState(data.state || {}, nextParticipant?.code || state.activeCode);
+          setSyncStatus("ok", "報名已寫入 Google Sheet。");
+          showRegistrationStatus("ok", `${nextParticipant?.name || name} 已完成報名，已產生參加者代碼：${displayParticipantCode(nextParticipant)}。`);
+          return;
+        }
         if (!participant || (!sameParticipant && !importedPlaceholder)) {
           participant = {
             code: await makeUniqueCode(),
@@ -2192,16 +2298,29 @@
         saveState();
         showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。`);
         renderAll();
+      } catch (error) {
+        showRegistrationStatus("warn", error.message);
       } finally {
         createButton.disabled = false;
       }
     }
 
-    function completeFormStation(event) {
+    async function completeFormStation(event) {
       const participant = activeParticipant();
       if (!participant) {
         event?.preventDefault();
         showRegistrationStatus("warn", "請先完成報名，再開啟問卷。");
+        return;
+      }
+      if (SHEET_API_URL) {
+        try {
+          const data = await sheetRequest("formComplete", { code: displayParticipantCode(participant) });
+          applyRemoteState(data.state || {}, displayParticipantCode(participant));
+          setSyncStatus("ok", "問卷關卡已寫入 Google Sheet。");
+          showRegistrationStatus("ok", "第 2 關問卷已完成。問卷另開分頁，做完回來繼續闖關。");
+        } catch (error) {
+          showRegistrationStatus("warn", error.message);
+        }
         return;
       }
       participant.stamps = participant.stamps || {};
@@ -2218,16 +2337,16 @@
       }
       state.activeCode = displayParticipantCode(participant);
       saveState();
-      showRegistrationStatus("ok", "第 1 關問卷已完成。問卷另開分頁，做完回來繼續闖關。");
+      showRegistrationStatus("ok", "第 2 關問卷已完成。問卷另開分頁，做完回來繼續闖關。");
       renderAll();
     }
 
-    function awardStamp() {
+    async function awardStamp() {
       const station = stationById(state.selectedStationId);
       const pin = document.getElementById("hostPin").value;
       const code = compactParticipantCode(document.getElementById("awardCode").value);
       if (station.id === DEFAULT_STATION_ID || station.canAward === false) {
-        showHostStatus("warn", "起點菱形已預設取得，不需關主核發。");
+        showHostStatus("warn", "完成報名與問卷會由系統自動核發，不需關主給點。");
         return;
       }
       if (!code) {
@@ -2238,19 +2357,25 @@
         showHostStatus("bad", `${station.title} 的給點密碼不正確。請輸入 ${station.pin}。`);
         return;
       }
+      if (SHEET_API_URL) {
+        try {
+          const data = await sheetRequest("award", { code, stationId: station.id, pin });
+          applyRemoteState(data.state || {}, code);
+          setSyncStatus("ok", `${station.title} 已寫入 Google Sheet。`);
+          showHostStatus(data.already ? "warn" : "ok", data.already
+            ? `${data.participant?.name || code} 已經取得 ${station.title} 的菱形，系統沒有重複核發。`
+            : `已為 ${data.participant?.name || code} 核發 ${station.title} 的菱形。`);
+          document.getElementById("hostPin").value = "";
+        } catch (error) {
+          showHostStatus("bad", error.message);
+        }
+        return;
+      }
       let participant = findParticipantByCode(code);
       if (!participant) {
-        participant = {
-          code,
-          name: "現場補登",
-          group: "學生",
-          createdAt: new Date().toISOString(),
-          stamps: {}
-        };
-        ensureDefaultStamp(participant);
-        state.participants.push(participant);
+        showHostStatus("warn", "找不到這個參加者代碼，請先完成報名。");
+        return;
       }
-      ensureDefaultStamp(participant);
       if (participant.stamps?.[station.id]) {
         showHostStatus("warn", `${participant.name} 已經取得 ${station.title} 的菱形，系統沒有重複核發。`);
         return;
@@ -2345,7 +2470,7 @@
     document.getElementById("awardBtn").addEventListener("click", awardStamp);
     document.getElementById("useActiveCodeBtn").addEventListener("click", () => {
       const participant = activeParticipant();
-      document.getElementById("awardCode").value = displayParticipantCode(participant);
+      document.getElementById("awardCode").value = displayParticipantCode(participant) || compactParticipantCode(state.activeCode);
     });
     document.getElementById("copyCodeBtn").addEventListener("click", async () => {
       const code = displayParticipantCode(activeParticipant());
@@ -2417,6 +2542,11 @@
     if (incomingParticipantCode) {
       document.getElementById("awardCode").value = incomingParticipantCode;
     }
+    refreshStateFromRemote({ quiet: true }).then(() => {
+      if (incomingParticipantCode) {
+        document.getElementById("awardCode").value = incomingParticipantCode;
+      }
+    });
   </script>
 </body>
 </html>

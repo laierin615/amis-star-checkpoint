@@ -1302,6 +1302,12 @@
       { id: "s8", number: 8, title: "關卡八", theme: "成果分享", host: "關主八", pin: "2108" }
     ];
     const STATION_COLORS = ["#0f5f56", "#c48625", "#316b8a", "#b84a45", "#5e7d43", "#a95f3d", "#0b4841", "#8f6f2a"];
+    const blankState = {
+      selectedStationId: "s1",
+      activeCode: "",
+      participants: [],
+      logs: []
+    };
 
     const demoState = {
       selectedStationId: "s1",
@@ -1356,9 +1362,9 @@
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : structuredClone(demoState);
+        return raw ? JSON.parse(raw) : structuredClone(blankState);
       } catch (error) {
-        return structuredClone(demoState);
+        return structuredClone(blankState);
       }
     }
 
@@ -1749,7 +1755,7 @@
     });
     document.getElementById("resetBtn").addEventListener("click", () => {
       if (!window.confirm("確定清空目前瀏覽器中的示範資料？")) return;
-      state = { selectedStationId: "s1", activeCode: "", participants: [], logs: [] };
+      state = structuredClone(blankState);
       saveState();
       renderAll();
     });

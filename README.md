@@ -12,6 +12,9 @@
 
 主控台密碼：`8888`
 
+Google Sheet Web App URL：
+`https://script.google.com/macros/s/AKfycbx5kZOqyM8Vxd5GisPf_pXkJ5PwaD9zJNs1erPmi4HMXoBTinA6-_iNEIY05K1QLYcW/exec`
+
 現場簡化版：
 
 - 第 1 關完成報名：完成報名後才會出現第一個菱形，參加者代碼從 `001` 開始。

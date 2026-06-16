@@ -1,4 +1,5 @@
 const SPREADSHEET_ID = "";
+const SPREADSHEET_NAME = "八角星集點資料庫";
 
 const SHEETS = {
   participants: "participants",
@@ -83,10 +84,19 @@ function output_(payload, callback) {
 }
 
 function spreadsheet_() {
-  if (SPREADSHEET_ID) return SpreadsheetApp.openById(SPREADSHEET_ID);
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  if (!spreadsheet) throw new Error("請在 Google Sheet 內建立 Apps Script，或填入 SPREADSHEET_ID。");
-  return spreadsheet;
+  const explicitId = String(SPREADSHEET_ID || "").trim();
+  if (explicitId) return SpreadsheetApp.openById(explicitId);
+  const props = PropertiesService.getScriptProperties();
+  const storedId = props.getProperty("SPREADSHEET_ID");
+  if (storedId) return SpreadsheetApp.openById(storedId);
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) {
+    props.setProperty("SPREADSHEET_ID", active.getId());
+    return active;
+  }
+  const created = SpreadsheetApp.create(SPREADSHEET_NAME);
+  props.setProperty("SPREADSHEET_ID", created.getId());
+  return created;
 }
 
 function setup_() {

@@ -85,8 +85,8 @@ Google Sheet Web App URL：
 | `participant_id` | 參加者唯一代碼，例如 `001` |
 | `name` | 真實姓名 |
 | `group_name` | 身分別：學生、來賓、家長、師長 |
-| `created_at` | 建立時間 |
-| `updated_at` | 更新時間 |
+| `created_at` | 建立時間，格式為台北時間 `yyyy/MM/dd HH:mm:ss` |
+| `updated_at` | 更新時間，格式為台北時間 `yyyy/MM/dd HH:mm:ss` |
 
 ### stations
 
@@ -106,7 +106,7 @@ Google Sheet Web App URL：
 | `participant_id` | 參加者代碼 |
 | `station_id` | 關卡代碼 |
 | `host_id` | 關卡註記 |
-| `created_at` | 核點時間 |
+| `created_at` | 核點時間，格式為台北時間 `yyyy/MM/dd HH:mm:ss` |
 
 `stamps` 需要維持同一個 `participant_id + station_id` 只能存在一筆，這樣可以阻擋同一關重複核發菱形。抽獎名單由完成八個關卡的參加者自動產生。
 
@@ -117,7 +117,9 @@ Google Sheet Web App URL：
 | `code` | 參加者代碼 |
 | `name` | 真實姓名 |
 | `group` | 身分別 |
-| `completed_at` | 完成八角星時間 |
+| `completed_at` | 完成八角星時間，格式為台北時間 `yyyy/MM/dd HH:mm:ss` |
+
+注意：若 Google Sheet 仍出現 UTC/ISO 時間，代表 Apps Script Web App 尚未重新部署到新版 `Code.gs`。
 
 ## 快速上線方案
 

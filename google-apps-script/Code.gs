@@ -1,5 +1,7 @@
 const SPREADSHEET_ID = "1uaU1pF7ybSVMT5tZ6KKB3hayY5XEz2k01Z4qA_SzBs0";
 const SPREADSHEET_NAME = "八角星集點資料庫";
+const TIMEZONE = "Asia/Taipei";
+const TIMESTAMP_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
 const SHEETS = {
   participants: "participants",
@@ -162,13 +164,22 @@ function padCode_(value) {
 }
 
 function nowIso_() {
-  return new Date().toISOString();
+  return Utilities.formatDate(new Date(), TIMEZONE, TIMESTAMP_FORMAT);
 }
 
 function toIso_(value) {
   if (!value) return "";
-  if (Object.prototype.toString.call(value) === "[object Date]") return value.toISOString();
+  if (Object.prototype.toString.call(value) === "[object Date]") {
+    return Utilities.formatDate(value, TIMEZONE, TIMESTAMP_FORMAT);
+  }
   return String(value);
+}
+
+function timeValue_(value) {
+  if (!value) return 0;
+  if (Object.prototype.toString.call(value) === "[object Date]") return value.getTime();
+  const parsed = new Date(String(value).replace(/-/g, "/"));
+  return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
 }
 
 function stationById_(id) {
@@ -294,7 +305,7 @@ function state_() {
     }
     return { code: code, stationId: stationId, host: host, time: time };
   }).sort(function (a, b) {
-    return new Date(b.time) - new Date(a.time);
+    return timeValue_(b.time) - timeValue_(a.time);
   });
   rows_("completions").forEach(function (completion) {
     const code = normalizeCode_(completion.code);

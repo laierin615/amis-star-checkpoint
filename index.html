@@ -494,7 +494,7 @@
 
     .star-number {
       fill: #432733;
-      font-size: 13px;
+      font-size: 9px;
       font-weight: 800;
       text-anchor: middle;
       dominant-baseline: central;
@@ -526,7 +526,7 @@
     .diamond-row {
       min-height: 68px;
       display: grid;
-      grid-template-columns: 44px minmax(0, 1fr) auto;
+      grid-template-columns: 58px minmax(0, 1fr) auto;
       gap: 12px;
       align-items: center;
       border: 1px solid var(--line);
@@ -541,8 +541,8 @@
     }
 
     .diamond-token {
-      width: 34px;
-      height: 34px;
+      width: 46px;
+      height: 46px;
       border: 1px solid #f1cbd8;
       background: #fff0f6;
       transform: rotate(45deg);
@@ -556,7 +556,11 @@
     .diamond-token span {
       transform: rotate(-45deg);
       display: block;
-      font-size: 13px;
+      max-width: 48px;
+      text-align: center;
+      font-size: 9px;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
     }
 
     .diamond-row.done .diamond-token {
@@ -1541,14 +1545,14 @@
     const DEFAULT_STATION_ID = "s2";
     const FORM_STATION_ID = "s1";
     const STATIONS = [
-      { id: "s1", number: 1, title: "問卷通關", theme: "入口星芒", host: "自動點亮", pin: "", legacyPins: [], canAward: false },
-      { id: "s2", number: 2, title: "真名報到", theme: "報到星芒", host: "自動點亮", pin: "", legacyPins: [], canAward: false },
-      { id: "s3", number: 3, title: "cengel", theme: "第 3 站", host: "密語 212", pin: "212", legacyPins: [] },
-      { id: "s4", number: 4, title: "Ilisin", theme: "第 4 站", host: "密語 323", pin: "323", legacyPins: [] },
-      { id: "s5", number: 5, title: "Dateng", theme: "第 5 站", host: "密語 434", pin: "434", legacyPins: [] },
-      { id: "s6", number: 6, title: "Asa’", theme: "第 6 站", host: "密語 545", pin: "545", legacyPins: [] },
-      { id: "s7", number: 7, title: "Mipacing", theme: "第 7 站", host: "密語 656", pin: "656", legacyPins: [] },
-      { id: "s8", number: 8, title: "noka", theme: "第 8 站", host: "密語 767", pin: "767", legacyPins: [] }
+      { id: "s1", number: 1, title: "問卷通關", shortTitle: "問卷", theme: "入口星芒", host: "自動點亮", pin: "", legacyPins: [], canAward: false },
+      { id: "s2", number: 2, title: "真名報到", shortTitle: "報到", theme: "報到星芒", host: "自動點亮", pin: "", legacyPins: [], canAward: false },
+      { id: "s3", number: 3, title: "cengel", shortTitle: "cengel", theme: "第 3 站", host: "密語 212", pin: "212", legacyPins: [] },
+      { id: "s4", number: 4, title: "Ilisin", shortTitle: "Ilisin", theme: "第 4 站", host: "密語 323", pin: "323", legacyPins: [] },
+      { id: "s5", number: 5, title: "Dateng", shortTitle: "Dateng", theme: "第 5 站", host: "密語 434", pin: "434", legacyPins: [] },
+      { id: "s6", number: 6, title: "Asa’", shortTitle: "Asa’", theme: "第 6 站", host: "密語 545", pin: "545", legacyPins: [] },
+      { id: "s7", number: 7, title: "Mipacing", shortTitle: "Mipacing", theme: "第 7 站", host: "密語 656", pin: "656", legacyPins: [] },
+      { id: "s8", number: 8, title: "noka", shortTitle: "noka", theme: "第 8 站", host: "密語 767", pin: "767", legacyPins: [] }
     ];
     const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {
@@ -1773,6 +1777,16 @@
       return STATIONS.find((station) => station.id === id) || STATIONS[0];
     }
 
+    function stationHint(station) {
+      return station?.shortTitle || station?.title || "";
+    }
+
+    function stationHintLines(station) {
+      const hint = stationHint(station);
+      if (hint.length <= 6) return [hint];
+      return [hint.slice(0, 4), hint.slice(4)];
+    }
+
     function awardableStations() {
       return STATIONS.filter((station) => station.canAward !== false);
     }
@@ -1857,14 +1871,30 @@
       return Object.keys(participant?.stamps || {}).length;
     }
 
+    function parseTime(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      const text = String(value).trim();
+      const localMatch = text.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?/);
+      if (localMatch) {
+        const [, year, month, day, hour, minute, second = "0"] = localMatch;
+        return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour) - 8, Number(minute), Number(second)));
+      }
+      const parsed = new Date(text);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
     function formatTime(value) {
       if (!value) return "";
+      const parsed = parseTime(value);
+      if (!parsed) return String(value);
       return new Intl.DateTimeFormat("zh-Hant-TW", {
+        timeZone: "Asia/Taipei",
         month: "2-digit",
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit"
-      }).format(new Date(value));
+      }).format(parsed);
     }
 
     function reserveUniqueCode() {
@@ -2037,7 +2067,6 @@
       renderAmisStar(participant);
       renderParticipantQr(realParticipant);
       renderCompletionBanner(realParticipant);
-      syncCompletionIfNeeded(realParticipant);
 
       const grid = document.getElementById("stampGrid");
       grid.innerHTML = "";
@@ -2058,7 +2087,7 @@
           ? "已點亮"
           : (station.canAward === false ? "待報到" : (realParticipant ? "點選輸密語" : "先報到"));
         item.innerHTML = `
-          <div class="diamond-token"><span>${station.number}</span></div>
+          <div class="diamond-token"><span>${stationHint(station)}</span></div>
           <div class="diamond-main">
             <div class="station-title">${station.title}</div>
             <div class="station-subtitle">${station.theme}</div>
@@ -2105,7 +2134,13 @@
             text.setAttribute("x", textX.toFixed(1));
             text.setAttribute("y", textY.toFixed(1));
             text.setAttribute("class", `star-number ${done ? "done" : ""}`);
-            text.textContent = station.number;
+            stationHintLines(station).forEach((line, lineIndex, lines) => {
+              const tspan = document.createElementNS(svgNS, "tspan");
+              tspan.setAttribute("x", textX.toFixed(1));
+              tspan.setAttribute("dy", lineIndex === 0 ? (lines.length > 1 ? "-0.45em" : "0") : "1em");
+              tspan.textContent = line;
+              text.appendChild(tspan);
+            });
             svg.appendChild(text);
           }
         });
@@ -2404,7 +2439,11 @@
       state.participants.forEach((participant) => {
         const complete = countStamps(participant);
         const isEligible = complete === STATIONS.length;
-        const lastStamp = Object.values(participant.stamps || {}).sort((a, b) => new Date(b.time) - new Date(a.time))[0];
+        const lastStamp = Object.values(participant.stamps || {}).sort((a, b) => {
+          const aTime = parseTime(a.time)?.getTime() || 0;
+          const bTime = parseTime(b.time)?.getTime() || 0;
+          return bTime - aTime;
+        })[0];
         const participantCode = displayParticipantCode(participant);
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -2444,7 +2483,7 @@
         setSyncStatus("ok", "八角星完成，已加入抽獎名單。");
       } catch (error) {
         completionSyncCodes.delete(code);
-        setSyncStatus("warn", `抽獎資格同步失敗：${error.message}`);
+        setSyncStatus("warn", `八角星已完成；完成名單補寫待確認：${error.message}`);
       }
     }
 
@@ -2581,6 +2620,13 @@
           applyRemoteState(data.state || {}, code);
           closeCheckpointPanel();
           const completedNow = Boolean(data.completed || data.participant?.completedAt || isComplete(data.participant));
+          if (completedNow) {
+            if (data.completed || data.participant?.completedAt) {
+              setSyncStatus("ok", "八角星完成，已加入抽獎名單。");
+            } else {
+              syncCompletionIfNeeded(data.participant || activeParticipant());
+            }
+          }
           showRegistrationStatus(data.already ? "warn" : "ok", data.already
             ? `${station.title} 已經點亮，繼續前往下一站。`
             : (completedNow ? "八枚星芒全部點亮，恭喜取得抽獎資格！" : `${station.title} 星芒點亮！`));
@@ -2671,7 +2717,11 @@
 
     function csvRows(participants) {
       return participants.map((participant) => {
-        const lastStamp = Object.values(participant.stamps || {}).sort((a, b) => new Date(b.time) - new Date(a.time))[0];
+        const lastStamp = Object.values(participant.stamps || {}).sort((a, b) => {
+          const aTime = parseTime(a.time)?.getTime() || 0;
+          const bTime = parseTime(b.time)?.getTime() || 0;
+          return bTime - aTime;
+        })[0];
         return [
           displayParticipantCode(participant),
           participant.name,

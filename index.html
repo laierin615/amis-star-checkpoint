@@ -6,20 +6,20 @@
   <title>八角星線上集點</title>
   <style>
     :root {
-      --bg: #f5f8f6;
+      --bg: #fff5f8;
       --surface: #ffffff;
-      --surface-2: #eef5f2;
-      --ink: #17312d;
-      --muted: #65756f;
-      --line: #d7e2dd;
-      --deep: #0f5f56;
-      --deep-2: #0b4841;
-      --gold: #c48625;
-      --red: #b84a45;
-      --blue: #316b8a;
-      --leaf: #5e7d43;
-      --clay: #a95f3d;
-      --shadow: 0 14px 36px rgba(18, 49, 43, 0.08);
+      --surface-2: #ffe8f0;
+      --ink: #432733;
+      --muted: #7f6470;
+      --line: #f1cbd8;
+      --deep: #c83d77;
+      --deep-2: #9f285b;
+      --gold: #e89ab3;
+      --red: #b64a68;
+      --blue: #8f5aa8;
+      --leaf: #d6759a;
+      --clay: #ad5c77;
+      --shadow: 0 14px 36px rgba(132, 45, 84, 0.1);
       font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
     }
 
@@ -28,8 +28,8 @@
     body {
       margin: 0;
       background:
-        linear-gradient(135deg, rgba(15, 95, 86, 0.06), transparent 34%),
-        linear-gradient(225deg, rgba(196, 134, 37, 0.07), transparent 38%),
+        linear-gradient(135deg, rgba(200, 61, 119, 0.08), transparent 34%),
+        linear-gradient(225deg, rgba(232, 154, 179, 0.12), transparent 38%),
         var(--bg);
       color: var(--ink);
       letter-spacing: 0;
@@ -40,7 +40,7 @@
       letter-spacing: 0;
     }
 
-    button {
+    button, .button-link {
       border: 1px solid var(--line);
       border-radius: 7px;
       min-height: 42px;
@@ -53,15 +53,16 @@
       justify-content: center;
       gap: 8px;
       white-space: nowrap;
+      text-decoration: none;
     }
 
-    button:hover { border-color: var(--deep); }
-    button:focus-visible, input:focus-visible, select:focus-visible {
-      outline: 3px solid rgba(15, 95, 86, 0.22);
+    button:hover, .button-link:hover { border-color: var(--deep); }
+    button:focus-visible, .button-link:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(200, 61, 119, 0.24);
       outline-offset: 2px;
     }
 
-    button.primary {
+    button.primary, .button-link.primary {
       background: var(--deep);
       border-color: var(--deep);
       color: #fff;
@@ -257,7 +258,7 @@
       gap: 12px;
       align-items: center;
       padding: 16px 18px;
-      background: #fbfdfc;
+      background: #fff9fc;
       border-bottom: 1px solid var(--line);
     }
 
@@ -341,7 +342,7 @@
       border-radius: 50%;
       display: grid;
       place-items: center;
-      background: conic-gradient(var(--deep) 0deg, #dce8e3 0deg);
+      background: conic-gradient(var(--deep) 0deg, #f6d7e3 0deg);
       position: relative;
     }
 
@@ -412,19 +413,39 @@
       line-height: 1.5;
       font-size: 14px;
       border: 1px solid var(--line);
-      background: #f7fbfa;
+      background: #fff8fb;
     }
 
     .registration-status.show { display: block; }
     .registration-status.ok {
-      border-color: rgba(15, 95, 86, 0.35);
-      background: #edf8f4;
+      border-color: rgba(200, 61, 119, 0.35);
+      background: #fff0f6;
       color: var(--deep-2);
     }
     .registration-status.warn {
       border-color: rgba(196, 134, 37, 0.45);
       background: #fff8ea;
       color: #744d11;
+    }
+
+    .form-challenge {
+      margin: 0 0 18px;
+      border: 1px solid rgba(200, 61, 119, 0.28);
+      border-left: 5px solid var(--deep);
+      border-radius: 8px;
+      background: #fff8fb;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .form-challenge p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
     }
 
     .star-layout {
@@ -438,7 +459,7 @@
       min-height: 360px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: linear-gradient(180deg, #fff, #f7fbfa);
+      background: linear-gradient(180deg, #fff, #fff8fb);
       display: grid;
       place-items: center;
       padding: 16px;
@@ -458,13 +479,13 @@
     }
 
     .star-piece {
-      stroke: #fbfdfc;
+      stroke: #fff9fc;
       stroke-width: 4;
       transition: fill 160ms ease, opacity 160ms ease, transform 160ms ease;
     }
 
     .star-piece.pending {
-      fill: #e4ece8;
+      fill: #f4dce7;
       opacity: 0.72;
     }
 
@@ -474,7 +495,7 @@
     }
 
     .star-number {
-      fill: #17312d;
+      fill: #432733;
       font-size: 13px;
       font-weight: 800;
       text-anchor: middle;
@@ -517,15 +538,15 @@
     }
 
     .diamond-row.done {
-      border-color: rgba(15, 95, 86, 0.34);
-      background: #f2faf7;
+      border-color: rgba(200, 61, 119, 0.34);
+      background: #fff3f8;
     }
 
     .diamond-token {
       width: 34px;
       height: 34px;
-      border: 1px solid #c8d6d1;
-      background: #edf3f0;
+      border: 1px solid #f1cbd8;
+      background: #fff0f6;
       transform: rotate(45deg);
       border-radius: 3px;
       display: grid;
@@ -576,12 +597,12 @@
       width: 88px;
       height: 88px;
       border-radius: 50%;
-      border: 12px solid rgba(15, 95, 86, 0.08);
+      border: 12px solid rgba(200, 61, 119, 0.08);
     }
 
     .stamp.done {
-      border-color: rgba(15, 95, 86, 0.36);
-      background: linear-gradient(180deg, #fff, #f2faf7);
+      border-color: rgba(200, 61, 119, 0.36);
+      background: linear-gradient(180deg, #fff, #fff3f8);
     }
 
     .stamp-top {
@@ -613,13 +634,13 @@
       padding: 4px 8px;
       font-size: 12px;
       text-align: center;
-      background: #f1f4f3;
+      background: #faedf3;
       color: var(--muted);
       font-weight: 720;
     }
 
     .stamp.done .status-pill {
-      background: rgba(15, 95, 86, 0.12);
+      background: rgba(200, 61, 119, 0.12);
       color: var(--deep);
     }
 
@@ -652,10 +673,10 @@
     }
 
     .code-box {
-      border: 1px dashed rgba(15, 95, 86, 0.5);
+      border: 1px dashed rgba(200, 61, 119, 0.5);
       border-radius: 8px;
       padding: 12px;
-      background: #f7fbfa;
+      background: #fff8fb;
       display: grid;
       gap: 10px;
     }
@@ -738,8 +759,8 @@
 
     .station-choice.active {
       border-color: var(--deep);
-      background: #eef8f5;
-      box-shadow: inset 0 0 0 1px rgba(15, 95, 86, 0.25);
+      background: #fff0f6;
+      box-shadow: inset 0 0 0 1px rgba(200, 61, 119, 0.25);
     }
 
     .station-choice .station-title { font-size: 14px; }
@@ -756,13 +777,13 @@
       line-height: 1.55;
       font-size: 14px;
       border: 1px solid var(--line);
-      background: #f7fbfa;
+      background: #fff8fb;
     }
 
     .status-banner.show { display: block; }
     .status-banner.ok {
-      border-color: rgba(15, 95, 86, 0.35);
-      background: #edf8f4;
+      border-color: rgba(200, 61, 119, 0.35);
+      background: #fff0f6;
       color: var(--deep-2);
     }
     .status-banner.warn {
@@ -846,7 +867,7 @@
       width: 18px;
       height: 18px;
       border-radius: 2px;
-      border: 1px solid #c9d7d2;
+      border: 1px solid #f1cbd8;
       background: #fff;
       transform: rotate(45deg);
     }
@@ -908,7 +929,7 @@
       max-width: 520px;
       margin: 0 auto;
       border: 1px solid var(--line);
-      background: #fbfdfc;
+      background: #fff9fc;
       border-radius: 8px;
       padding: 18px;
       display: grid;
@@ -968,7 +989,7 @@
       min-height: 28px;
       border-radius: 999px;
       padding: 4px 9px;
-      background: #f1f4f3;
+      background: #faedf3;
       color: var(--muted);
       font-size: 12px;
       font-weight: 760;
@@ -985,7 +1006,7 @@
       padding: 16px;
       border: 1px dashed var(--line);
       border-radius: 8px;
-      background: #fbfdfc;
+      background: #fff9fc;
       line-height: 1.55;
     }
 
@@ -1021,6 +1042,7 @@
       }
       .admin-actions { justify-content: flex-start; }
       .admin-gate-form { grid-template-columns: 1fr; }
+      .form-challenge { grid-template-columns: 1fr; }
       .star-stage { min-height: 300px; }
       .diamond-row {
         grid-template-columns: 40px minmax(0, 1fr);
@@ -1043,15 +1065,15 @@
         </div>
         <div class="activity-mark" aria-hidden="true">
           <svg viewBox="0 0 120 120" role="img" aria-label="八角星集點圖案">
-            <polygon points="60,9 72,45 60,60 48,45" fill="#0f5f56"/>
-            <polygon points="92,22 78,56 60,60 64,42" fill="#c48625"/>
-            <polygon points="111,60 75,72 60,60 75,48" fill="#316b8a"/>
-            <polygon points="92,98 56,78 60,60 74,64" fill="#b84a45"/>
-            <polygon points="60,111 48,75 60,60 72,75" fill="#5e7d43"/>
-            <polygon points="28,98 42,64 60,60 56,78" fill="#a95f3d"/>
-            <polygon points="9,60 45,48 60,60 45,72" fill="#0b4841"/>
-            <polygon points="28,22 64,42 60,60 42,56" fill="#c48625"/>
-            <circle cx="60" cy="60" r="9" fill="#fff" stroke="#d7e2dd" stroke-width="2"/>
+            <polygon points="60,9 72,45 60,60 48,45" fill="#c83d77"/>
+            <polygon points="92,22 78,56 60,60 64,42" fill="#e89ab3"/>
+            <polygon points="111,60 75,72 60,60 75,48" fill="#8f5aa8"/>
+            <polygon points="92,98 56,78 60,60 74,64" fill="#b64a68"/>
+            <polygon points="60,111 48,75 60,60 72,75" fill="#d6759a"/>
+            <polygon points="28,98 42,64 60,60 56,78" fill="#ad5c77"/>
+            <polygon points="9,60 45,48 60,60 45,72" fill="#f1a7c0"/>
+            <polygon points="28,22 64,42 60,60 42,56" fill="#9f285b"/>
+            <circle cx="60" cy="60" r="9" fill="#fff" stroke="#f1cbd8" stroke-width="2"/>
           </svg>
         </div>
       </div>
@@ -1122,12 +1144,17 @@
               </div>
               <div class="form-grid" style="margin-bottom:16px;">
                 <label>
-                  <strong>姓名或隊名</strong>
+                  <strong>姓名</strong>
                   <input id="participantName" autocomplete="name" placeholder="例如：林小山">
                 </label>
                 <label>
-                  <strong>班級或隊名</strong>
-                  <input id="participantGroup" placeholder="例如：四甲 / 海風隊">
+                  <strong>身分別</strong>
+                  <select id="participantGroup">
+                    <option value="學生">學生</option>
+                    <option value="來賓">來賓</option>
+                    <option value="家長">家長</option>
+                    <option value="師長">師長</option>
+                  </select>
                 </label>
                 <button class="primary" id="createParticipantBtn">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -1135,12 +1162,25 @@
                 </button>
               </div>
               <div class="registration-status" id="registrationStatus"></div>
+              <div class="form-challenge">
+                <div>
+                  <div class="subhead" style="margin-bottom:0;">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+                    <h3>第一關：完成表單</h3>
+                  </div>
+                  <p>完成報名後開啟 Google 表單，系統會自動核發第一關菱形。</p>
+                </div>
+                <a class="button-link primary" id="completeFormStationBtn" href="https://forms.gle/1ZsEmkVoPNFVHNSFA" target="_blank" rel="noopener">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                  開啟表單並取得第一關
+                </a>
+              </div>
 
               <div class="grid-2">
                 <div>
                   <div class="passport-head">
                     <div>
-                      <div class="participant-name" id="displayName">示範學生</div>
+                      <div class="participant-name" id="displayName">示範參加者</div>
                       <div class="participant-meta" id="displayMeta">一甲 · NP115001</div>
                     </div>
                     <div class="star-progress" aria-label="完成進度">
@@ -1159,11 +1199,11 @@
                   </div>
                 </div>
 
-                <aside class="ticket" aria-label="學生憑證">
+                <aside class="ticket" aria-label="參加者憑證">
                   <div>
                     <div class="subhead">
                       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M8 9h8M8 13h5"/></svg>
-                      <h3>學生憑證</h3>
+                      <h3>參加者憑證</h3>
                     </div>
                     <div class="code-box">
                       <div class="code-label">參加者代碼</div>
@@ -1209,7 +1249,7 @@
                     <input id="hostPin" inputmode="numeric" placeholder="測試口令：2101 到 2108">
                   </label>
                   <label>
-                    <strong>學生代碼</strong>
+                    <strong>參加者代碼</strong>
                     <input id="awardCode" autocapitalize="characters" placeholder="例如：NP115001">
                   </label>
                   <div class="quick-actions">
@@ -1219,7 +1259,7 @@
                     </button>
                     <button id="useActiveCodeBtn">
                       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2h-4"/><path d="M3 9V5a2 2 0 0 1 2-2h4"/><path d="M21 9V5a2 2 0 0 0-2-2h-4"/><path d="M3 15v4a2 2 0 0 0 2 2h4"/><path d="M8 12h8"/></svg>
-                      帶入目前學生
+                      帶入目前參加者
                     </button>
                   </div>
                   <div class="subsection">
@@ -1296,7 +1336,7 @@
                       <tr>
                         <th>代碼</th>
                         <th>姓名</th>
-                        <th>班級/隊名</th>
+                        <th>身分別</th>
                         <th>菱形</th>
                         <th>八角星</th>
                         <th>抽獎資格</th>
@@ -1324,7 +1364,7 @@
                 <div class="flow-step">
                   <h3>活動前</h3>
                   <ul>
-                    <li>學生先登記姓名、班級或隊名。</li>
+                    <li>參加者先登記姓名與身分別。</li>
                     <li>系統建立參加代碼，後台同步形成表格。</li>
                     <li>八位關主各自拿到自己的給菱形口令。</li>
                   </ul>
@@ -1332,7 +1372,7 @@
                 <div class="flow-step">
                   <h3>闖關中</h3>
                   <ul>
-                    <li>學生完成任務後出示自己的 QR 或代碼。</li>
+                    <li>參加者完成任務後出示自己的 QR 或代碼。</li>
                     <li>關主確認通過後，核發該關的菱形。</li>
                     <li>系統擋掉重複核發，並保留時間與關主紀錄。</li>
                   </ul>
@@ -1359,14 +1399,14 @@
                   </div>
                   <div class="flow-step">
                     <h3>驗證</h3>
-                    <p>學生不能自己取得菱形；核發動作必須由關主頁完成。系統記錄學生、關卡、關主、時間與裝置。</p>
+                    <p>參加者不能自己取得菱形；核發動作必須由關主頁完成。系統記錄參加者、關卡、關主、時間與裝置。</p>
                   </div>
                   <div class="flow-step">
                     <h3>備援</h3>
                     <p>現場網路不穩時，關主可先用紙本補登表記代碼，活動結束由主控台批次補登。</p>
                   </div>
                 </div>
-                <div class="callout" style="margin-top:14px;">最穩的模式是「關主掃學生 QR 後給菱形」。若改成「學生掃關卡 QR」，建議加上關主當場告知的一次性口令，避免學生未過關就自行收集菱形。</div>
+                <div class="callout" style="margin-top:14px;">最穩的模式是「關主掃參加者 QR 後給菱形」。若改成「參加者掃關卡 QR」，建議加上關主當場告知的一次性口令，避免參加者未過關就自行收集菱形。</div>
               </div>
             </div>
           </div>
@@ -1380,8 +1420,10 @@
     const ADMIN_SESSION_KEY = "salimpo.dashboardUnlocked.v1";
     const ADMIN_PASSWORD = "8888";
     const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
+    const FORM_STATION_URL = "https://forms.gle/1ZsEmkVoPNFVHNSFA";
+    const IDENTITY_OPTIONS = ["學生", "來賓", "家長", "師長"];
     const STATIONS = [
-      { id: "s1", number: 1, title: "關卡一", theme: "山海生活", host: "關主一", pin: "2101" },
+      { id: "s1", number: 1, title: "完成 Google 表單", theme: "第一關表單", host: "系統自動", pin: "" },
       { id: "s2", number: 2, title: "關卡二", theme: "山海人文", host: "關主二", pin: "2102" },
       { id: "s3", number: 3, title: "關卡三", theme: "山海藝音", host: "關主三", pin: "2103" },
       { id: "s4", number: 4, title: "關卡四", theme: "山海藝術", host: "關主四", pin: "2104" },
@@ -1390,7 +1432,7 @@
       { id: "s7", number: 7, title: "關卡七", theme: "海岸觀察", host: "關主七", pin: "2107" },
       { id: "s8", number: 8, title: "關卡八", theme: "成果分享", host: "關主八", pin: "2108" }
     ];
-    const STATION_COLORS = ["#0f5f56", "#c48625", "#316b8a", "#b84a45", "#5e7d43", "#a95f3d", "#0b4841", "#8f6f2a"];
+    const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {
       selectedStationId: "s1",
       activeCode: "",
@@ -1404,21 +1446,21 @@
       participants: [
         {
           code: "NP115001",
-          name: "示範學生",
-          group: "一甲",
+          name: "示範參加者",
+          group: "學生",
           createdAt: new Date().toISOString(),
           stamps: {
-            s1: { stationId: "s1", host: "關主一", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
+            s1: { stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
             s3: { stationId: "s3", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() }
           }
         },
         {
           code: "NP115002",
           name: "林海風",
-          group: "海風隊",
+          group: "家長",
           createdAt: new Date().toISOString(),
           stamps: {
-            s1: { stationId: "s1", host: "關主一", time: new Date(Date.now() - 1000 * 60 * 54).toISOString() },
+            s1: { stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 54).toISOString() },
             s2: { stationId: "s2", host: "關主二", time: new Date(Date.now() - 1000 * 60 * 47).toISOString() },
             s4: { stationId: "s4", host: "關主四", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
           }
@@ -1426,7 +1468,7 @@
         {
           code: "NP115003",
           name: "陳星光",
-          group: "八角星隊",
+          group: "師長",
           createdAt: new Date().toISOString(),
           stamps: STATIONS.reduce((stamps, station, index) => {
             stamps[station.id] = {
@@ -1441,7 +1483,7 @@
       logs: [
         { code: "NP115003", stationId: "s8", host: "關主八", time: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
         { code: "NP115001", stationId: "s3", host: "關主三", time: new Date(Date.now() - 1000 * 60 * 12).toISOString() },
-        { code: "NP115001", stationId: "s1", host: "關主一", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
+        { code: "NP115001", stationId: "s1", host: "系統自動", time: new Date(Date.now() - 1000 * 60 * 26).toISOString() },
         { code: "NP115002", stationId: "s4", host: "關主四", time: new Date(Date.now() - 1000 * 60 * 35).toISOString() }
       ]
     };
@@ -1518,6 +1560,10 @@
       return state.participants.find((participant) => participant.code === state.activeCode) || state.participants[0];
     }
 
+    function normalizeIdentity(value) {
+      return IDENTITY_OPTIONS.includes(value) ? value : "學生";
+    }
+
     function countStamps(participant) {
       return Object.keys(participant?.stamps || {}).length;
     }
@@ -1568,7 +1614,7 @@
         participant = {
           code,
           name: "QR 掃描匯入",
-          group: "未填",
+          group: "學生",
           createdAt: new Date().toISOString(),
           stamps: {}
         };
@@ -1601,24 +1647,24 @@
     function renderParticipant() {
       const participant = activeParticipant();
       if (!participant) {
-        document.getElementById("displayName").textContent = "尚未建立學生";
+        document.getElementById("displayName").textContent = "尚未建立參加者";
         document.getElementById("displayMeta").textContent = "請先建立參加者代碼";
         document.getElementById("participantCode").textContent = "未建立";
         document.getElementById("progressCount").textContent = "0/8";
         document.getElementById("participantName").value = "";
-        document.getElementById("participantGroup").value = "";
+        document.getElementById("participantGroup").value = "學生";
         document.getElementById("stampGrid").innerHTML = "";
         renderAmisStar(null);
         renderParticipantQr(null);
         return;
       }
       const complete = countStamps(participant);
-      document.getElementById("displayName").textContent = participant.name || "未命名學生";
-      document.getElementById("displayMeta").textContent = `${participant.group || "未填班級"} · ${participant.code}`;
+      document.getElementById("displayName").textContent = participant.name || "未命名參加者";
+      document.getElementById("displayMeta").textContent = `${normalizeIdentity(participant.group)} · ${participant.code}`;
       document.getElementById("participantCode").textContent = participant.code;
       document.getElementById("progressCount").textContent = `${complete}/8`;
       document.getElementById("participantName").value = participant.name || "";
-      document.getElementById("participantGroup").value = participant.group || "";
+      document.getElementById("participantGroup").value = normalizeIdentity(participant.group);
       renderAmisStar(participant);
       renderParticipantQr(participant);
 
@@ -1886,7 +1932,7 @@
           if (modules[y][x]) rects.push(`<rect x="${x + quiet}" y="${y + quiet}" width="1" height="1"/>`);
         }
       }
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewSize} ${viewSize}" role="img" aria-label="參加者 QR code"><rect width="100%" height="100%" fill="#fff"/><g fill="#0b4841">${rects.join("")}</g></svg>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewSize} ${viewSize}" role="img" aria-label="參加者 QR code"><rect width="100%" height="100%" fill="#fff"/><g fill="#9f285b">${rects.join("")}</g></svg>`;
     }
 
     function renderParticipantQr(participant) {
@@ -1953,7 +1999,7 @@
         row.innerHTML = `
           <td><button class="ghost select-participant" data-code="${participant.code}">${participant.code}</button></td>
           <td>${participant.name || ""}</td>
-          <td>${participant.group || ""}</td>
+          <td>${normalizeIdentity(participant.group)}</td>
           <td>${complete}/8</td>
           <td><div class="mini-stamps">${STATIONS.map((station) => `<span class="mini-dot${participant.stamps?.[station.id] ? " done" : ""}" title="${station.title}"></span>`).join("")}</div></td>
           <td><span class="eligibility${isEligible ? " ready" : ""}">${isEligible ? "可抽獎" : "未完成"}</span></td>
@@ -1977,14 +2023,14 @@
 
     function createOrUpdateParticipant() {
       const name = document.getElementById("participantName").value.trim();
-      const group = document.getElementById("participantGroup").value.trim();
+      const group = normalizeIdentity(document.getElementById("participantGroup").value);
       if (!name) {
-        showRegistrationStatus("warn", "請先填寫姓名或隊名，後台才有可抽獎的登記資料。");
+        showRegistrationStatus("warn", "請先填寫姓名，後台才有可抽獎的登記資料。");
         return;
       }
       let participant = activeParticipant();
-      const sameParticipant = participant && participant.name === name && (participant.group || "") === group;
-      const importedPlaceholder = participant && (participant.name === "QR 掃描匯入" || participant.name === "現場補登" || participant.name === "未命名學生");
+      const sameParticipant = participant && participant.name === name && normalizeIdentity(participant.group) === group;
+      const importedPlaceholder = participant && (participant.name === "QR 掃描匯入" || participant.name === "現場補登" || participant.name === "未命名學生" || participant.name === "未命名參加者");
       if (!participant || (!sameParticipant && !importedPlaceholder)) {
         participant = {
           code: makeUniqueCode(),
@@ -2004,10 +2050,40 @@
       renderAll();
     }
 
+    function completeFormStation(event) {
+      const participant = activeParticipant();
+      if (!participant) {
+        event?.preventDefault();
+        showRegistrationStatus("warn", "請先完成報名，再開啟第一關表單取得菱形。");
+        return;
+      }
+      participant.stamps = participant.stamps || {};
+      if (!participant.stamps.s1) {
+        const stamp = {
+          stationId: "s1",
+          host: "系統自動",
+          time: new Date().toISOString()
+        };
+        participant.stamps.s1 = stamp;
+        state.logs.unshift({ code: participant.code, ...stamp });
+        state.activeCode = participant.code;
+        saveState();
+        showRegistrationStatus("ok", "已開啟第一關表單，系統已自動核發第一關菱形。");
+        renderAll();
+        return;
+      }
+      showRegistrationStatus("ok", "第一關菱形已取得；表單已重新開啟。");
+      renderAll();
+    }
+
     function awardStamp() {
       const station = stationById(state.selectedStationId);
       const pin = document.getElementById("hostPin").value.trim();
       const code = document.getElementById("awardCode").value.trim().toUpperCase();
+      if (station.id === "s1") {
+        showHostStatus("warn", "第一關由參加者完成 Google 表單後自動取得，不需關主核發。");
+        return;
+      }
       if (!code) {
         showHostStatus("warn", "請輸入參加者代碼。");
         return;
@@ -2021,7 +2097,7 @@
         participant = {
           code,
           name: "現場補登",
-          group: "未填",
+          group: "學生",
           createdAt: new Date().toISOString(),
           stamps: {}
         };
@@ -2051,7 +2127,7 @@
         return [
           participant.code,
           participant.name,
-          participant.group,
+          normalizeIdentity(participant.group),
           countStamps(participant),
           countStamps(participant) === STATIONS.length ? "可抽獎" : "未完成",
           ...STATIONS.map((station) => participant.stamps?.[station.id] ? formatTime(participant.stamps[station.id].time) : ""),
@@ -2061,7 +2137,7 @@
     }
 
     function exportCsv(raffleOnly = false) {
-      const header = ["代碼", "姓名", "班級/隊名", "完成菱形數", "抽獎資格", ...STATIONS.map((station) => station.title), "最後核點"];
+      const header = ["代碼", "姓名", "身分別", "完成菱形數", "抽獎資格", ...STATIONS.map((station) => station.title), "最後核點"];
       const participants = raffleOnly
         ? state.participants.filter((participant) => countStamps(participant) === STATIONS.length)
         : state.participants;
@@ -2085,7 +2161,7 @@
         return;
       }
       const winner = eligible[Math.floor(Math.random() * eligible.length)];
-      result.textContent = `抽獎結果：${winner.name}（${winner.group || "未填班級"}，${winner.code}）`;
+      result.textContent = `抽獎結果：${winner.name}（${normalizeIdentity(winner.group)}，${winner.code}）`;
     }
 
     document.querySelectorAll(".nav-btn").forEach((button) => {
@@ -2115,6 +2191,7 @@
       }
     });
     document.getElementById("createParticipantBtn").addEventListener("click", createOrUpdateParticipant);
+    document.getElementById("completeFormStationBtn").addEventListener("click", completeFormStation);
     document.getElementById("awardBtn").addEventListener("click", awardStamp);
     document.getElementById("useActiveCodeBtn").addEventListener("click", () => {
       const participant = activeParticipant();

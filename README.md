@@ -18,7 +18,7 @@ Google Sheet Web App URL：
 現場簡化版：
 
 - 現場入口 QR code：請先放 Google 表單 QR code。
-- 表單完成頁連結：Google 表單送出後的確認訊息放集點卡入口 `https://laierin615.github.io/amis-star-checkpoint/?v=f15a1c5&form=done`。
+- 表單完成頁連結：Google 表單送出後的確認訊息放集點卡入口 `https://laierin615.github.io/amis-star-checkpoint/?v=20260617-formfirst&form=done`。
 - 第 1 關問卷完成：參加者從表單完成頁點進集點卡後，報名時會自動收集第一個菱形。
 - 第 2 關完成報名：填姓名與身分別後取得參加者代碼，並收集第二個菱形。
 - 給點密碼：第 3 到第 8 關由關主輸入指定密碼核發菱形。
@@ -44,7 +44,7 @@ Google Sheet Web App URL：
 
 1. 建立 Google Sheet，並部署 `google-apps-script/Code.gs`。
 2. Google 表單 QR code 放在現場入口，讓參加者先完成問卷。
-3. 在 Google 表單「送出後確認訊息」放入集點卡入口：`https://laierin615.github.io/amis-star-checkpoint/?v=f15a1c5&form=done`。
+3. 在 Google 表單「送出後確認訊息」放入集點卡入口：`https://laierin615.github.io/amis-star-checkpoint/?v=20260617-formfirst&form=done`。
 4. 參加者從表單完成頁進入集點卡後，登記姓名與身分別；系統自動產生參加者代碼與 QR code，並核發第 1 關「問卷完成」與第 2 關「完成報名」菱形。
 5. 產生第 3 到第 8 關的關主給點流程；參加者代碼由 QR 自動帶入，關主只輸入給點密碼。
 6. 印出或發送參加者 QR 卡，關主手機先測試掃碼與核發菱形。

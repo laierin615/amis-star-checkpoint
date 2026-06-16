@@ -7,6 +7,8 @@
 
 目前 `index.html` 使用瀏覽器本機 `localStorage` 模擬資料，適合確認流程與介面。正式活動需要接 Google Sheet、Airtable、Supabase、Firebase 或學校網站後台，讓所有手機看到同一份資料。
 
+公開網址：https://laierin615.github.io/amis-star-checkpoint/
+
 ## 推薦流程
 
 ### 1. 活動前

@@ -1062,7 +1062,7 @@
       <div class="title-row">
         <div>
           <h1>八角星線上集點</h1>
-          <p class="subtitle">先完成報名取得第 1 個菱形；第 2 關問卷按下直接完成；第 3 到第 8 關由關主輸入給點密碼，八個菱形集滿後自動列入抽獎名單。</p>
+          <p class="subtitle">先掃 Google 表單 QR 完成問卷取得第 1 個菱形；進入集點卡登記姓名取得第 2 個菱形；第 3 到第 8 關由關主輸入給點密碼，八個菱形集滿後自動列入抽獎名單。</p>
         </div>
         <div class="activity-mark" aria-hidden="true">
           <svg viewBox="0 0 120 120" role="img" aria-label="八角星集點圖案">
@@ -1124,13 +1124,13 @@
                 <div class="star-stage">
                   <div class="star-wrap">
                     <svg class="amis-star" id="amisStar" viewBox="0 0 260 260" role="img" aria-label="阿美族八角星集點圖"></svg>
-                    <div class="star-caption">完成報名後第 1 個菱形才會亮起；集滿 8 關即完成闖關。</div>
+                    <div class="star-caption">完成表單後第 1 個菱形預設收集；報名完成取得第 2 個菱形。</div>
                   </div>
                 </div>
               </div>
               <div class="subhead">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-                <h3>先登記姓名</h3>
+                <h3>登記姓名取得第 2 顆</h3>
               </div>
               <div class="form-grid" style="margin-bottom:16px;">
                 <label>
@@ -1157,13 +1157,14 @@
                 <div>
                   <div class="subhead" style="margin-bottom:0;">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-                    <h3>第 2 關：問卷</h3>
+                    <h3>第 1 關：問卷</h3>
                   </div>
-                  <p>完成報名後才能按。按下後會直接完成問卷菱形，問卷另開分頁，做完回來繼續闖關。</p>
+                  <p>現場先掃 Google 表單 QR 並送出，表單完成頁會提供集點卡連結。從完成頁回來後，報名時會自動保留第 1 顆問卷菱形。</p>
+                  <div class="registration-status" id="formEntryStatus"></div>
                 </div>
-                <a class="button-link primary" id="completeFormStationBtn" href="https://forms.gle/1ZsEmkVoPNFVHNSFA" target="_blank" rel="noopener">
+                <a class="button-link primary" id="completeFormStationBtn" href="https://docs.google.com/forms/d/e/1FAIpQLSf8XQz02l4-FTC6uNRZLGzXn1hDpqfdus1MaRzLg619IlsaOA/viewform" target="_blank" rel="noopener">
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-                  完成問卷關卡
+                  開啟問卷表單
                 </a>
               </div>
 
@@ -1204,7 +1205,7 @@
                         </button>
                       </div>
                     </div>
-                    <div class="callout">每位參加者完成報名後會產生自己的 QR code。關主掃描後會自動帶入參加代碼，再核發該關菱形。</div>
+                    <div class="callout">每位參加者完成報名後會產生自己的 QR code。關主掃描後會自動帶入參加代碼，再核發第 3 到第 8 關菱形。</div>
                   </div>
                 </aside>
               </div>
@@ -1366,8 +1367,8 @@
                 <div class="flow-step">
                   <h3>活動前</h3>
                   <ul>
-                    <li>參加者先登記姓名與身分別。</li>
-                    <li>系統建立參加代碼，報名完成後取得第 1 個菱形。</li>
+                    <li>參加者先掃 Google 表單 QR，送出問卷後點確認頁的集點卡連結。</li>
+                    <li>進入集點卡後登記姓名與身分別，系統建立參加代碼並取得第 2 個菱形。</li>
                     <li>六個給點關卡各自拿到自己的給菱形密碼。</li>
                   </ul>
                 </div>
@@ -1382,7 +1383,7 @@
                 <div class="flow-step">
                   <h3>收尾</h3>
                   <ul>
-                    <li>完成報名、問卷與 6 個給點關卡後，八個菱形組成八角星。</li>
+                    <li>完成問卷、報名與 6 個給點關卡後，八個菱形組成八角星。</li>
                     <li>主控台自動列出可抽獎名單。</li>
                     <li>匯出後台表格，保留活動紀錄。</li>
                   </ul>
@@ -1418,11 +1419,12 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "salimpo.onlineCheckpoint.v2";
+    const STORAGE_KEY = "salimpo.onlineCheckpoint.v3";
     const ADMIN_SESSION_KEY = "salimpo.dashboardUnlocked.v1";
     const ADMIN_PASSWORD = "8888";
     const PUBLIC_SITE_URL = "https://laierin615.github.io/amis-star-checkpoint/";
-    const FORM_STATION_URL = "https://forms.gle/1ZsEmkVoPNFVHNSFA";
+    const FORM_STATION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf8XQz02l4-FTC6uNRZLGzXn1hDpqfdus1MaRzLg619IlsaOA/viewform";
+    const FORM_RETURN_URL = "https://laierin615.github.io/amis-star-checkpoint/?v=f15a1c5&form=done";
     const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx5kZOqyM8Vxd5GisPf_pXkJ5PwaD9zJNs1erPmi4HMXoBTinA6-_iNEIY05K1QLYcW/exec";
     const API_URL_STORAGE_KEY = "salimpo.sheetApiUrl.v1";
     const IDENTITY_OPTIONS = ["學生", "來賓", "家長", "師長"];
@@ -1430,11 +1432,11 @@
     const SIMPLE_CODE_DIGITS = 3;
     const SIMPLE_CODE_START = 1;
     const MASTER_PINS = [];
-    const DEFAULT_STATION_ID = "s1";
-    const FORM_STATION_ID = "s2";
+    const DEFAULT_STATION_ID = "s2";
+    const FORM_STATION_ID = "s1";
     const STATIONS = [
-      { id: "s1", number: 1, title: "完成報名", theme: "報名完成", host: "系統自動", pin: "", legacyPins: [], canAward: false },
-      { id: "s2", number: 2, title: "問卷", theme: "問卷", host: "問卷自動", pin: "", legacyPins: [], canAward: false },
+      { id: "s1", number: 1, title: "問卷完成", theme: "表單問卷", host: "表單自動", pin: "", legacyPins: [], canAward: false },
+      { id: "s2", number: 2, title: "完成報名", theme: "報名完成", host: "系統自動", pin: "", legacyPins: [], canAward: false },
       { id: "s3", number: 3, title: "cengel", theme: "cengel", host: "cengel 關主", pin: "212", legacyPins: [] },
       { id: "s4", number: 4, title: "Ilisin", theme: "Ilisin", host: "Ilisin 關主", pin: "323", legacyPins: [] },
       { id: "s5", number: 5, title: "Dateng", theme: "Dateng", host: "Dateng 關主", pin: "434", legacyPins: [] },
@@ -1513,7 +1515,20 @@
       }
     }
 
+    function readFormEntryCompleted() {
+      const truthy = new Set(["1", "true", "yes", "done", "completed", "complete"]);
+      try {
+        const params = new URLSearchParams(location.search);
+        return truthy.has(String(params.get("form") || "").trim().toLowerCase())
+          || truthy.has(String(params.get("formDone") || "").trim().toLowerCase())
+          || String(params.get("from") || "").trim().toLowerCase() === "form";
+      } catch (error) {
+        return false;
+      }
+    }
+
     const SHEET_API_URL = readConfiguredApiUrl();
+    const formEntryCompleted = readFormEntryCompleted();
     let apiRequestId = 0;
     let syncStatus = SHEET_API_URL
       ? { kind: "warn", text: "Google Sheet 同步準備中..." }
@@ -1661,20 +1676,34 @@
       return STATIONS.filter((station) => station.canAward !== false);
     }
 
-    function defaultStamp() {
+    function stationStamp(stationId, hostOverride = "") {
+      const station = stationById(stationId);
       return {
-        stationId: DEFAULT_STATION_ID,
-        host: "系統自動",
+        stationId,
+        host: hostOverride || station.host,
         time: new Date().toISOString()
       };
     }
 
-    function ensureDefaultStamp(participant) {
+    function ensureStationStamp(participant, stationId, hostOverride = "") {
       if (!participant) return;
       participant.stamps = participant.stamps || {};
-      if (!participant.stamps[DEFAULT_STATION_ID]) {
-        participant.stamps[DEFAULT_STATION_ID] = defaultStamp();
+      if (!participant.stamps[stationId]) {
+        participant.stamps[stationId] = stationStamp(stationId, hostOverride);
       }
+    }
+
+    function ensureDefaultStamp(participant) {
+      ensureStationStamp(participant, DEFAULT_STATION_ID, "系統自動");
+    }
+
+    function ensureFormEntryStamp(participant) {
+      ensureStationStamp(participant, FORM_STATION_ID, "表單自動");
+    }
+
+    function ensureEntryStamps(participant) {
+      if (formEntryCompleted) ensureFormEntryStamp(participant);
+      ensureDefaultStamp(participant);
     }
 
     function isValidStationPin(station, rawPin) {
@@ -1696,7 +1725,7 @@
     function activeParticipant() {
       const activeCode = compactParticipantCode(state.activeCode);
       if (activeCode) return findParticipantByCode(activeCode);
-      return state.participants[0];
+      return null;
     }
 
     function normalizeIdentity(value) {
@@ -1844,12 +1873,22 @@
 
     function renderAll() {
       renderSyncStatus();
+      renderFormEntryStatus();
       renderMetrics();
       renderParticipant();
       renderStations();
       renderLogs();
       renderDashboard();
       renderHostInputs();
+    }
+
+    function renderFormEntryStatus() {
+      const status = document.getElementById("formEntryStatus");
+      if (!status) return;
+      status.className = `registration-status show ${formEntryCompleted ? "ok" : "warn"}`;
+      status.textContent = formEntryCompleted
+        ? "已從表單完成頁進入：報名後會自動取得第 1 顆問卷菱形。"
+        : "請先掃表單 QR；送出後在確認頁點「集點卡」連結回來。";
     }
 
     function renderMetrics() {
@@ -2272,12 +2311,25 @@
           const data = await sheetRequest("register", {
             code: participant ? displayParticipantCode(participant) : "",
             name,
-            group
+            group,
+            formDone: formEntryCompleted ? "1" : ""
           });
-          const nextParticipant = data.participant;
-          applyRemoteState(data.state || {}, nextParticipant?.code || state.activeCode);
-          setSyncStatus("ok", "報名已寫入 Google Sheet。");
-          showRegistrationStatus("ok", `${nextParticipant?.name || name} 已完成報名，已產生參加者代碼：${displayParticipantCode(nextParticipant)}。`);
+          let nextParticipant = data.participant;
+          let nextState = data.state || {};
+          let formSyncWarning = "";
+          const nextCode = displayParticipantCode(nextParticipant) || state.activeCode;
+          if (formEntryCompleted && nextCode) {
+            try {
+              const formData = await sheetRequest("formComplete", { code: nextCode });
+              nextParticipant = formData.participant || nextParticipant;
+              nextState = formData.state || nextState;
+            } catch (formError) {
+              formSyncWarning = `問卷菱形補寫失敗：${formError.message}`;
+            }
+          }
+          applyRemoteState(nextState, nextParticipant?.code || nextCode || state.activeCode);
+          setSyncStatus(formSyncWarning ? "warn" : "ok", formSyncWarning || "報名已寫入 Google Sheet。");
+          showRegistrationStatus(formSyncWarning ? "warn" : "ok", `${nextParticipant?.name || name} 已完成報名，已產生參加者代碼：${displayParticipantCode(nextParticipant)}。${formSyncWarning ? "報名已成功，但第 1 顆問卷菱形需要主控端確認。" : (formEntryCompleted ? "第 1 顆問卷與第 2 顆報名已收集。" : "若已完成表單，請從表單完成頁連結回來補上第 1 顆。")}`);
           return;
         }
         if (!participant || (!sameParticipant && !importedPlaceholder)) {
@@ -2288,16 +2340,16 @@
             createdAt: new Date().toISOString(),
             stamps: {}
           };
-          ensureDefaultStamp(participant);
+          ensureEntryStamps(participant);
           state.participants.push(participant);
           state.activeCode = displayParticipantCode(participant);
         } else {
           participant.name = name;
           participant.group = group;
-          ensureDefaultStamp(participant);
+          ensureEntryStamps(participant);
         }
         saveState();
-        showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。`);
+        showRegistrationStatus("ok", `${participant.name} 已完成報名，已產生專屬 QR code：${displayParticipantCode(participant)}。${formEntryCompleted ? "第 1 顆問卷與第 2 顆報名已收集。" : "若已完成表單，請從表單完成頁連結回來補上第 1 顆。"}`);
         renderAll();
       } catch (error) {
         showRegistrationStatus("warn", error.message);
@@ -2306,40 +2358,8 @@
       }
     }
 
-    async function completeFormStation(event) {
-      const participant = activeParticipant();
-      if (!participant) {
-        event?.preventDefault();
-        showRegistrationStatus("warn", "請先完成報名，再開啟問卷。");
-        return;
-      }
-      if (SHEET_API_URL) {
-        try {
-          const data = await sheetRequest("formComplete", { code: displayParticipantCode(participant) });
-          applyRemoteState(data.state || {}, displayParticipantCode(participant));
-          setSyncStatus("ok", "問卷關卡已寫入 Google Sheet。");
-          showRegistrationStatus("ok", "第 2 關問卷已完成。問卷另開分頁，做完回來繼續闖關。");
-        } catch (error) {
-          showRegistrationStatus("warn", error.message);
-        }
-        return;
-      }
-      participant.stamps = participant.stamps || {};
-      ensureDefaultStamp(participant);
-      const formStation = stationById(FORM_STATION_ID);
-      if (!participant.stamps[FORM_STATION_ID]) {
-        const stamp = {
-          stationId: FORM_STATION_ID,
-          host: formStation.host,
-          time: new Date().toISOString()
-        };
-        participant.stamps[FORM_STATION_ID] = stamp;
-        state.logs.unshift({ code: displayParticipantCode(participant), ...stamp });
-      }
-      state.activeCode = displayParticipantCode(participant);
-      saveState();
-      showRegistrationStatus("ok", "第 2 關問卷已完成。問卷另開分頁，做完回來繼續闖關。");
-      renderAll();
+    function showFormStationHint() {
+      showRegistrationStatus("warn", "請送出 Google 表單後，在完成頁點集點卡連結回來。");
     }
 
     async function awardStamp() {
@@ -2347,7 +2367,7 @@
       const pin = document.getElementById("hostPin").value;
       const code = compactParticipantCode(document.getElementById("awardCode").value);
       if (station.id === DEFAULT_STATION_ID || station.canAward === false) {
-        showHostStatus("warn", "完成報名與問卷會由系統自動核發，不需關主給點。");
+        showHostStatus("warn", "問卷與完成報名會由系統自動核發，不需關主給點。");
         return;
       }
       if (!code) {
@@ -2467,7 +2487,7 @@
       }
     });
     document.getElementById("createParticipantBtn").addEventListener("click", createOrUpdateParticipant);
-    document.getElementById("completeFormStationBtn").addEventListener("click", completeFormStation);
+    document.getElementById("completeFormStationBtn").addEventListener("click", showFormStationHint);
     document.getElementById("awardBtn").addEventListener("click", awardStamp);
     document.getElementById("useActiveCodeBtn").addEventListener("click", () => {
       const participant = activeParticipant();

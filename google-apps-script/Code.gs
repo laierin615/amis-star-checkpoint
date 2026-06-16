@@ -14,8 +14,8 @@ const HEADERS = {
 };
 
 const STATIONS = [
-  { id: "s1", title: "完成報名", host: "系統自動", pin: "", canAward: false },
-  { id: "s2", title: "問卷", host: "問卷自動", pin: "", canAward: false },
+  { id: "s1", title: "問卷完成", host: "表單自動", pin: "", canAward: false },
+  { id: "s2", title: "完成報名", host: "系統自動", pin: "", canAward: false },
   { id: "s3", title: "cengel", host: "cengel 關主", pin: "212", canAward: true },
   { id: "s4", title: "Ilisin", host: "Ilisin 關主", pin: "323", canAward: true },
   { id: "s5", title: "Dateng", host: "Dateng 關主", pin: "434", canAward: true },
@@ -24,8 +24,8 @@ const STATIONS = [
   { id: "s8", title: "noka", host: "noka 關主", pin: "767", canAward: true }
 ];
 
-const DEFAULT_STATION_ID = "s1";
-const FORM_STATION_ID = "s2";
+const DEFAULT_STATION_ID = "s2";
+const FORM_STATION_ID = "s1";
 const CODE_DIGITS = 3;
 const NEXT_CODE_KEY = "next_code";
 
@@ -150,6 +150,10 @@ function normalizePin_(value) {
   return String(value || "").replace(/\D/g, "");
 }
 
+function truthy_(value) {
+  return ["1", "true", "yes", "done", "completed", "complete"].indexOf(String(value || "").trim().toLowerCase()) !== -1;
+}
+
 function padCode_(value) {
   return String(value).padStart(CODE_DIGITS, "0");
 }
@@ -270,6 +274,9 @@ function register_(params) {
     const existing = requestedCode ? participantByCode_(requestedCode) : null;
     const code = existing ? requestedCode : nextCode_();
     const participant = upsertParticipant_(code, name, group);
+    if (truthy_(params.formDone) || truthy_(params.form) || truthy_(params.formCompleted)) {
+      addStampIfMissing_(code, stationById_(FORM_STATION_ID), "表單自動");
+    }
     addStampIfMissing_(code, stationById_(DEFAULT_STATION_ID), "系統自動");
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
@@ -283,13 +290,13 @@ function register_(params) {
 
 function formComplete_(params) {
   const code = normalizeCode_(params.code);
-  if (!code) return { ok: false, error: "請先完成報名，再開啟問卷。" };
+  if (!code) return { ok: false, error: "請先完成報名，系統才能把問卷菱形寫到你的代碼。" };
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const participant = participantByCode_(code);
     if (!participant) return { ok: false, error: "找不到這個參加者代碼，請先完成報名。" };
-    addStampIfMissing_(code, stationById_(FORM_STATION_ID), "問卷自動");
+    addStampIfMissing_(code, stationById_(FORM_STATION_ID), "表單自動");
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;

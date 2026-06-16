@@ -15,12 +15,12 @@ const HEADERS = {
 const STATIONS = [
   { id: "s1", title: "完成報名", host: "系統自動", pin: "", canAward: false },
   { id: "s2", title: "問卷", host: "問卷自動", pin: "", canAward: false },
-  { id: "s3", title: "cengel", host: "cengel 關主", pin: "202", canAward: true },
-  { id: "s4", title: "Ilisin", host: "Ilisin 關主", pin: "303", canAward: true },
-  { id: "s5", title: "Dateng", host: "Dateng 關主", pin: "404", canAward: true },
-  { id: "s6", title: "Asa’", host: "Asa’ 關主", pin: "505", canAward: true },
-  { id: "s7", title: "Mipacing", host: "Mipacing 關主", pin: "606", canAward: true },
-  { id: "s8", title: "noka", host: "noka 關主", pin: "707", canAward: true }
+  { id: "s3", title: "cengel", host: "cengel 關主", pin: "212", canAward: true },
+  { id: "s4", title: "Ilisin", host: "Ilisin 關主", pin: "323", canAward: true },
+  { id: "s5", title: "Dateng", host: "Dateng 關主", pin: "434", canAward: true },
+  { id: "s6", title: "Asa’", host: "Asa’ 關主", pin: "545", canAward: true },
+  { id: "s7", title: "Mipacing", host: "Mipacing 關主", pin: "656", canAward: true },
+  { id: "s8", title: "noka", host: "noka 關主", pin: "767", canAward: true }
 ];
 
 const DEFAULT_STATION_ID = "s1";
@@ -34,6 +34,11 @@ function doGet(e) {
 
 function doPost(e) {
   return handleRequest_(e);
+}
+
+function setup() {
+  setup_();
+  return state_();
 }
 
 function handleRequest_(e) {

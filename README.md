@@ -24,12 +24,12 @@
 
 1. 完成報名：系統自動核發
 2. 問卷：按下後直接完成關卡
-3. cengel：給點密碼 `202`
-4. Ilisin：給點密碼 `303`
-5. Dateng：給點密碼 `404`
-6. Asa’：給點密碼 `505`
-7. Mipacing：給點密碼 `606`
-8. noka：給點密碼 `707`
+3. cengel：給點密碼 `212`
+4. Ilisin：給點密碼 `323`
+5. Dateng：給點密碼 `434`
+6. Asa’：給點密碼 `545`
+7. Mipacing：給點密碼 `656`
+8. noka：給點密碼 `767`
 
 注意：多台手機同時報名、關主使用不同裝置給點時，必須填入 Google Sheet Apps Script URL，才會全場共用同一份資料並保證代碼不重複。
 
@@ -132,6 +132,8 @@ https://laierin615.github.io/amis-star-checkpoint/?api=貼上URL編碼後的WebA
 ```
 
 正式活動建議直接寫入 `GOOGLE_SHEET_API_URL`，避免 QR code 因網址太長而不穩。
+
+若還沒要改程式，也可以先把 Web App URL 貼給 Codex，Codex 會幫你寫進 `GOOGLE_SHEET_API_URL` 並重新部署。
 
 ### 方案 B：Supabase / Firebase
 

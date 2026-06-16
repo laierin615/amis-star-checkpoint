@@ -168,9 +168,9 @@
     }
 
     .summary-strip {
-      padding: 12px clamp(16px, 4vw, 42px);
-      background: var(--surface-2);
-      border-bottom: 1px solid var(--line);
+      margin: 0 0 14px;
+      padding: 0;
+      background: transparent;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
@@ -373,7 +373,7 @@
     }
 
     .star-progress {
-      width: 132px;
+      min-width: 96px;
       display: grid;
       justify-items: center;
       gap: 6px;
@@ -449,10 +449,11 @@
     }
 
     .star-layout {
-      display: grid;
-      grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1fr);
-      gap: 18px;
-      align-items: center;
+      display: block;
+    }
+
+    .passport-star-top {
+      margin: 0 0 18px;
     }
 
     .star-stage {
@@ -473,7 +474,7 @@
     }
 
     .amis-star {
-      width: min(100%, 320px);
+      width: min(100%, 340px);
       aspect-ratio: 1;
       display: block;
     }
@@ -1079,25 +1080,6 @@
       </div>
     </header>
 
-    <section class="summary-strip" aria-label="活動統計">
-      <div class="metric">
-        <div class="metric-value" id="metricParticipants">0</div>
-        <div class="metric-label">登記人數</div>
-      </div>
-      <div class="metric">
-        <div class="metric-value" id="metricStamps">0</div>
-        <div class="metric-label">已取得菱形</div>
-      </div>
-      <div class="metric">
-        <div class="metric-value" id="metricCompleted">0</div>
-        <div class="metric-label">抽獎資格</div>
-      </div>
-      <div class="metric">
-        <div class="metric-value" id="metricRate">0%</div>
-        <div class="metric-label">完成率</div>
-      </div>
-    </section>
-
     <main>
       <nav aria-label="主要功能">
         <button class="nav-btn active" data-view="participant">
@@ -1138,6 +1120,14 @@
               </div>
             </div>
             <div class="panel-body">
+              <div class="passport-star-top">
+                <div class="star-stage">
+                  <div class="star-wrap">
+                    <svg class="amis-star" id="amisStar" viewBox="0 0 260 260" role="img" aria-label="阿美族八角星集點圖"></svg>
+                    <div class="star-caption">完成報名後第 1 個菱形才會亮起；集滿 8 關即完成闖關。</div>
+                  </div>
+                </div>
+              </div>
               <div class="subhead">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
                 <h3>先登記姓名</h3>
@@ -1185,17 +1175,10 @@
                       <div class="participant-meta" id="displayMeta">學生 · 001</div>
                     </div>
                     <div class="star-progress" aria-label="完成進度">
-                      <svg class="mini-amis-star" id="miniAmisStar" viewBox="0 0 260 260" role="img" aria-label="目前取得的八角星菱形"></svg>
                       <span class="star-progress-count"><span id="progressCount">0/8</span><small>菱形</small></span>
                     </div>
                   </div>
                   <div class="star-layout">
-                    <div class="star-stage">
-                      <div class="star-wrap">
-                        <svg class="amis-star" id="amisStar" viewBox="0 0 260 260" role="img" aria-label="阿美族八角星集點圖"></svg>
-                        <div class="star-caption">完成報名後第 1 個菱形才會亮起；集滿 8 關即完成闖關。</div>
-                      </div>
-                    </div>
                     <div class="diamond-list" id="stampGrid"></div>
                   </div>
                 </div>
@@ -1327,6 +1310,24 @@
               </div>
 
               <div id="dashboardContent" class="is-hidden">
+                <section class="summary-strip dashboard-summary" aria-label="活動統計">
+                  <div class="metric">
+                    <div class="metric-value" id="metricParticipants">0</div>
+                    <div class="metric-label">登記人數</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-value" id="metricStamps">0</div>
+                    <div class="metric-label">已取得菱形</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-value" id="metricCompleted">0</div>
+                    <div class="metric-label">抽獎資格</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-value" id="metricRate">0%</div>
+                    <div class="metric-label">完成率</div>
+                  </div>
+                </section>
                 <div class="raffle-bar">
                   <div class="raffle-result" id="raffleResult">完成八個菱形的參加者會自動列入抽獎名單。</div>
                   <span class="eligibility ready" id="raffleCount">0 位可抽獎</span>
@@ -1434,12 +1435,12 @@
     const STATIONS = [
       { id: "s1", number: 1, title: "完成報名", theme: "報名完成", host: "系統自動", pin: "", legacyPins: [], canAward: false },
       { id: "s2", number: 2, title: "問卷", theme: "問卷", host: "問卷自動", pin: "", legacyPins: [], canAward: false },
-      { id: "s3", number: 3, title: "cengel", theme: "cengel", host: "cengel 關主", pin: "202", legacyPins: [] },
-      { id: "s4", number: 4, title: "Ilisin", theme: "Ilisin", host: "Ilisin 關主", pin: "303", legacyPins: [] },
-      { id: "s5", number: 5, title: "Dateng", theme: "Dateng", host: "Dateng 關主", pin: "404", legacyPins: [] },
-      { id: "s6", number: 6, title: "Asa’", theme: "Asa’", host: "Asa’ 關主", pin: "505", legacyPins: [] },
-      { id: "s7", number: 7, title: "Mipacing", theme: "Mipacing", host: "Mipacing 關主", pin: "606", legacyPins: [] },
-      { id: "s8", number: 8, title: "noka", theme: "noka", host: "noka 關主", pin: "707", legacyPins: [] }
+      { id: "s3", number: 3, title: "cengel", theme: "cengel", host: "cengel 關主", pin: "212", legacyPins: [] },
+      { id: "s4", number: 4, title: "Ilisin", theme: "Ilisin", host: "Ilisin 關主", pin: "323", legacyPins: [] },
+      { id: "s5", number: 5, title: "Dateng", theme: "Dateng", host: "Dateng 關主", pin: "434", legacyPins: [] },
+      { id: "s6", number: 6, title: "Asa’", theme: "Asa’", host: "Asa’ 關主", pin: "545", legacyPins: [] },
+      { id: "s7", number: 7, title: "Mipacing", theme: "Mipacing", host: "Mipacing 關主", pin: "656", legacyPins: [] },
+      { id: "s8", number: 8, title: "noka", theme: "noka", host: "noka 關主", pin: "767", legacyPins: [] }
     ];
     const STATION_COLORS = ["#c83d77", "#e89ab3", "#8f5aa8", "#b64a68", "#d6759a", "#ad5c77", "#f1a7c0", "#9f285b"];
     const blankState = {

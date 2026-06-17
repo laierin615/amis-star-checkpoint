@@ -1692,11 +1692,13 @@
       const normalized = { ...structuredClone(blankState), ...(loaded || {}) };
       const usedCodes = new Set();
       const codeRemap = new Map();
-      normalized.participants = Array.isArray(normalized.participants) ? normalized.participants : [];
+      const incomingParticipants = Array.isArray(normalized.participants) ? normalized.participants : [];
+      normalized.participants = [];
       normalized.logs = Array.isArray(normalized.logs) ? normalized.logs : [];
-      normalized.participants.forEach((participant) => {
+      incomingParticipants.forEach((participant) => {
         const originalCode = cleanCodeText(participant.code);
         const compactCode = compactParticipantCode(participant.code);
+        if (!originalCode && !compactCode) return;
         const keepCompactCode = /^\d+$/.test(compactCode) && !usedCodes.has(compactCode);
         let nextCode = keepCompactCode ? compactCode : "";
         for (let codeNumber = SIMPLE_CODE_START; !nextCode; codeNumber += 1) {
@@ -1709,6 +1711,7 @@
         }
         participant.code = nextCode;
         usedCodes.add(nextCode);
+        normalized.participants.push(participant);
         if (originalCode) codeRemap.set(originalCode, nextCode);
         if (compactCode) codeRemap.set(compactCode, nextCode);
       });
@@ -1718,6 +1721,7 @@
         const logCode = cleanCodeText(log.code);
         log.code = codeRemap.get(logCode) || codeRemap.get(compactParticipantCode(logCode)) || compactParticipantCode(logCode);
       });
+      normalized.logs = normalized.logs.filter((log) => compactParticipantCode(log.code));
       const awardableStations = STATIONS.filter((station) => station.canAward !== false);
       if (!awardableStations.some((station) => station.id === normalized.selectedStationId)) {
         normalized.selectedStationId = awardableStations[0]?.id || DEFAULT_STATION_ID;

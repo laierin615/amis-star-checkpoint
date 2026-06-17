@@ -281,7 +281,9 @@ function addCompletionIfEligible_(code) {
 }
 
 function state_() {
-  const participants = rows_("participants").map(function (participant) {
+  const participants = rows_("participants").filter(function (participant) {
+    return normalizeCode_(participant.code);
+  }).map(function (participant) {
     return {
       code: normalizeCode_(participant.code),
       name: participant.name || "",
@@ -297,6 +299,7 @@ function state_() {
   });
   const logs = rows_("stamps").map(function (stamp) {
     const code = normalizeCode_(stamp.code);
+    if (!code) return null;
     const stationId = stamp.station_id;
     const host = stamp.host || (stationById_(stationId) || {}).host || "";
     const time = toIso_(stamp.created_at);
@@ -304,6 +307,8 @@ function state_() {
       participantMap[code].stamps[stationId] = { stationId: stationId, host: host, time: time };
     }
     return { code: code, stationId: stationId, host: host, time: time };
+  }).filter(function (log) {
+    return log;
   }).sort(function (a, b) {
     return timeValue_(b.time) - timeValue_(a.time);
   });

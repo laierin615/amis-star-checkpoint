@@ -1205,6 +1205,10 @@
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
                   列印
                 </button>
+                <button class="ghost" id="switchParticipantBtn" type="button">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="m3 21 7-7"/><path d="M21 14v3a4 4 0 0 1-4 4h-3"/><path d="M3 10V7a4 4 0 0 1 4-4h3"/></svg>
+                  換人重新報到
+                </button>
               </div>
             </div>
             <div class="panel-body">
@@ -1702,6 +1706,7 @@
     }
 
     let state = loadState();
+    let switchingParticipant = false;
 
     function loadState() {
       try {
@@ -1838,6 +1843,7 @@
     }
 
     function activeParticipant() {
+      if (switchingParticipant) return null;
       const activeCode = compactParticipantCode(state.activeCode);
       if (activeCode) return findParticipantByCode(activeCode);
       return null;
@@ -1936,6 +1942,7 @@
       const rawCode = params.get("p") || params.get("participant") || "";
       const code = compactParticipantCode(rawCode);
       if (!code) return "";
+      switchingParticipant = false;
       state.activeCode = code;
       saveState();
       return code;
@@ -1954,6 +1961,7 @@
     }
 
     function applyRemoteState(remoteState, activeCode = state.activeCode) {
+      if (compactParticipantCode(activeCode)) switchingParticipant = false;
       const selectedStationId = state.selectedStationId;
       state = normalizeLoadedState({
         ...structuredClone(blankState),
@@ -2063,6 +2071,9 @@
       if (realParticipant) {
         document.getElementById("participantName").value = realParticipant.name || "";
         document.getElementById("participantGroup").value = normalizeIdentity(realParticipant.group);
+      } else if (switchingParticipant) {
+        document.getElementById("participantName").value = "";
+        document.getElementById("participantGroup").value = "學生";
       }
       renderAmisStar(participant);
       renderParticipantQr(realParticipant);
@@ -2499,6 +2510,20 @@
       status.textContent = text;
     }
 
+    function switchParticipantForNewRegistration() {
+      const currentParticipant = activeParticipant();
+      const currentName = currentParticipant?.name ? `「${currentParticipant.name}」` : "目前參加者";
+      if (currentParticipant && !window.confirm(`要讓下一位重新報到嗎？${currentName} 的雲端集點資料會保留，不會被清除。`)) {
+        return;
+      }
+      switchingParticipant = true;
+      state.activeCode = "";
+      saveState();
+      renderAll();
+      showRegistrationStatus("ok", "已切換為下一位重新報到。請填寫新參加者姓名後送出。");
+      document.getElementById("participantName").focus();
+    }
+
     async function createOrUpdateParticipant() {
       const name = document.getElementById("participantName").value.trim();
       const group = normalizeIdentity(document.getElementById("participantGroup").value);
@@ -2508,13 +2533,13 @@
       }
       const createButton = document.getElementById("createParticipantBtn");
       createButton.disabled = true;
-      let participant = activeParticipant();
+      let participant = switchingParticipant ? null : activeParticipant();
       const sameParticipant = participant && participant.name === name && normalizeIdentity(participant.group) === group;
       const importedPlaceholder = participant && (participant.name === "QR 掃描匯入" || participant.name === "現場補登" || participant.name === "未命名學生" || participant.name === "未命名參加者");
       try {
         if (SHEET_API_URL) {
           const data = await sheetRequest("register", {
-            code: participant ? displayParticipantCode(participant) : "",
+            code: switchingParticipant ? "" : (participant ? displayParticipantCode(participant) : ""),
             name,
             group,
             formDone: formEntryCompleted ? "1" : ""
@@ -2532,6 +2557,7 @@
               formSyncWarning = `問卷菱形補寫失敗：${formError.message}`;
             }
           }
+          switchingParticipant = false;
           applyRemoteState(nextState, nextParticipant?.code || nextCode || state.activeCode);
           setSyncStatus(formSyncWarning ? "warn" : "ok", formSyncWarning || "報到已寫入任務名單。");
           showRegistrationStatus(formSyncWarning ? "warn" : "ok", `${nextParticipant?.name || name} 報到完成，前兩枚星芒已點亮。現在可以點選任務卡上的下一站。${formSyncWarning ? "第 1 枚問卷星芒需要主控端確認。" : ""}`);
@@ -2553,6 +2579,7 @@
           participant.group = group;
           ensureEntryStamps(participant);
         }
+        switchingParticipant = false;
         saveState();
         showRegistrationStatus("ok", `${participant.name} 報到完成，前兩枚星芒已點亮。現在可以點選任務卡上的下一站。`);
         renderAll();
@@ -2791,6 +2818,7 @@
       }
     });
     document.getElementById("createParticipantBtn").addEventListener("click", createOrUpdateParticipant);
+    document.getElementById("switchParticipantBtn").addEventListener("click", switchParticipantForNewRegistration);
     document.getElementById("completeFormStationBtn").addEventListener("click", showFormStationHint);
     document.getElementById("stampGrid").addEventListener("click", (event) => {
       const item = event.target.closest("[data-station]");
@@ -2860,12 +2888,14 @@
     document.getElementById("exportRaffleBtn").addEventListener("click", () => exportCsv(true));
     document.getElementById("drawWinnerBtn").addEventListener("click", drawWinner);
     document.getElementById("seedBtn").addEventListener("click", () => {
+      switchingParticipant = false;
       state = structuredClone(demoState);
       saveState();
       renderAll();
     });
     document.getElementById("resetBtn").addEventListener("click", () => {
       if (!window.confirm("確定清空目前瀏覽器中的示範資料？")) return;
+      switchingParticipant = false;
       state = structuredClone(blankState);
       storageRemove(localStorage, CODE_COUNTER_KEY);
       saveState();
@@ -2874,6 +2904,7 @@
     document.getElementById("dashboardRows").addEventListener("click", (event) => {
       const button = event.target.closest(".select-participant");
       if (!button) return;
+      switchingParticipant = false;
       state.activeCode = button.dataset.code;
       saveState();
       renderAll();

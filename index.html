@@ -2011,8 +2011,8 @@
         });
         const script = document.createElement("script");
         const timer = window.setTimeout(() => {
-          finish(reject, new Error("Google Sheet 同步逾時，請確認 Apps Script Web App URL。"));
-        }, 12000);
+          finish(reject, new Error("Google Sheet 回應較慢，正在重新同步確認是否已寫入。"));
+        }, 30000);
         window[callbackName] = (data) => {
           if (!data?.ok) {
             finish(reject, new Error(data?.error || "Google Sheet 回傳失敗"));
@@ -2523,6 +2523,40 @@
       status.textContent = text;
     }
 
+    function participantUpdatedTime(participant) {
+      const updated = parseTime(participant?.updatedAt)?.getTime() || 0;
+      const created = parseTime(participant?.createdAt)?.getTime() || 0;
+      const stampTimes = Object.values(participant?.stamps || {}).map((stamp) => parseTime(stamp.time)?.getTime() || 0);
+      return Math.max(updated, created, ...stampTimes, 0);
+    }
+
+    function findLatestParticipantByIdentity(name, group) {
+      const normalizedName = String(name || "").trim();
+      const normalizedGroup = normalizeIdentity(group);
+      return [...state.participants]
+        .filter((participant) => participant.name === normalizedName && normalizeIdentity(participant.group) === normalizedGroup)
+        .sort((a, b) => participantUpdatedTime(b) - participantUpdatedTime(a))[0] || null;
+    }
+
+    function isRecoverableSheetError(error) {
+      const message = String(error?.message || error || "");
+      return message.includes("回應較慢") || message.includes("同步逾時") || message.includes("無法連線 Google Sheet API");
+    }
+
+    async function recoverRegistrationAfterTimeout(name, group) {
+      setSyncStatus("warn", "報到寫入確認中，正在重新同步任務名單...");
+      const synced = await refreshStateFromRemote({ quiet: true });
+      if (!synced) return null;
+      const recovered = findLatestParticipantByIdentity(name, group);
+      const recoveredCode = displayParticipantCode(recovered);
+      if (!recoveredCode) return null;
+      switchingParticipant = false;
+      state.activeCode = recoveredCode;
+      saveState();
+      renderAll();
+      return recovered;
+    }
+
     function switchParticipantForNewRegistration() {
       const currentParticipant = activeParticipant();
       const currentName = currentParticipant?.name ? `「${currentParticipant.name}」` : "目前參加者";
@@ -2559,21 +2593,11 @@
           });
           let nextParticipant = data.participant;
           let nextState = data.state || {};
-          let formSyncWarning = "";
           const nextCode = displayParticipantCode(nextParticipant) || state.activeCode;
-          if (formEntryCompleted && nextCode) {
-            try {
-              const formData = await sheetRequest("formComplete", { code: nextCode });
-              nextParticipant = formData.participant || nextParticipant;
-              nextState = formData.state || nextState;
-            } catch (formError) {
-              formSyncWarning = `問卷菱形補寫失敗：${formError.message}`;
-            }
-          }
           switchingParticipant = false;
           applyRemoteState(nextState, nextParticipant?.code || nextCode || state.activeCode);
-          setSyncStatus(formSyncWarning ? "warn" : "ok", formSyncWarning || "報到已寫入任務名單。");
-          showRegistrationStatus(formSyncWarning ? "warn" : "ok", `${nextParticipant?.name || name} 報到完成，前兩枚星芒已點亮。現在可以點選任務卡上的下一站。${formSyncWarning ? "第 1 枚問卷星芒需要主控端確認。" : ""}`);
+          setSyncStatus("ok", "報到已寫入任務名單。");
+          showRegistrationStatus("ok", `${nextParticipant?.name || name} 報到完成，前兩枚星芒已點亮。現在可以點選任務卡上的下一站。`);
           return;
         }
         if (!participant || (!sameParticipant && !importedPlaceholder)) {
@@ -2597,6 +2621,14 @@
         showRegistrationStatus("ok", `${participant.name} 報到完成，前兩枚星芒已點亮。現在可以點選任務卡上的下一站。`);
         renderAll();
       } catch (error) {
+        if (SHEET_API_URL && isRecoverableSheetError(error)) {
+          const recovered = await recoverRegistrationAfterTimeout(name, group);
+          if (recovered) {
+            setSyncStatus("ok", "報到已寫入任務名單。");
+            showRegistrationStatus("ok", `${recovered.name || name} 報到完成，剛剛 Google Sheet 回應較慢，系統已重新同步成功。`);
+            return;
+          }
+        }
         showRegistrationStatus("warn", error.message);
       } finally {
         createButton.disabled = false;

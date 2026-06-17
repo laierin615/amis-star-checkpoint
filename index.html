@@ -1985,6 +1985,9 @@
     }
 
     function applyRemoteState(remoteState, activeCode = state.activeCode) {
+      const previousParticipant = activeParticipant();
+      const previousName = String(previousParticipant?.name || "").trim();
+      const previousGroup = previousParticipant ? normalizeIdentity(previousParticipant.group) : "";
       if (compactParticipantCode(activeCode)) switchingParticipant = false;
       const selectedStationId = state.selectedStationId;
       state = normalizeLoadedState({
@@ -1993,6 +1996,10 @@
         selectedStationId,
         activeCode
       });
+      if (compactParticipantCode(state.activeCode) && !activeParticipant() && previousName) {
+        const restoredParticipant = findLatestParticipantByIdentity(previousName, previousGroup);
+        if (restoredParticipant) state.activeCode = displayParticipantCode(restoredParticipant);
+      }
       saveState();
       renderAll();
     }

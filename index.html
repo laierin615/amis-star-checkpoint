@@ -311,6 +311,17 @@
       align-items: end;
     }
 
+    .registration-actions {
+      display: grid;
+      gap: 8px;
+      align-self: end;
+    }
+
+    .registration-actions button {
+      width: 100%;
+      min-width: 0;
+    }
+
     .passport-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -1205,10 +1216,6 @@
                   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
                   列印
                 </button>
-                <button class="ghost" id="switchParticipantBtn" type="button">
-                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="m3 21 7-7"/><path d="M21 14v3a4 4 0 0 1-4 4h-3"/><path d="M3 10V7a4 4 0 0 1 4-4h3"/></svg>
-                  換人重新報到
-                </button>
               </div>
             </div>
             <div class="panel-body">
@@ -1239,10 +1246,16 @@
                     <option value="師長">師長</option>
                   </select>
                 </label>
-                <button class="primary" id="createParticipantBtn">
-                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                  完成真名報到
-                </button>
+                <div class="registration-actions">
+                  <button class="primary" id="createParticipantBtn">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                    完成真名報到
+                  </button>
+                  <button class="ghost" id="switchParticipantBtn" type="button">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="m3 21 7-7"/><path d="M21 14v3a4 4 0 0 1-4 4h-3"/><path d="M3 10V7a4 4 0 0 1 4-4h3"/></svg>
+                    換人重新報到
+                  </button>
+                </div>
               </div>
               <div class="registration-status" id="registrationStatus"></div>
               <div class="registration-status" id="syncStatus"></div>

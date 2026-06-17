@@ -87,6 +87,12 @@ Google Sheet Web App URL：
 | `group_name` | 身分別：學生、來賓、家長、師長 |
 | `created_at` | 建立時間，格式為台北時間 `yyyy/MM/dd HH:mm:ss` |
 | `updated_at` | 更新時間，格式為台北時間 `yyyy/MM/dd HH:mm:ss` |
+| `報名時間` | 報到完成時間，預設同 `created_at` |
+| `集點數` | 已取得的星芒數，依 `stamps` 工作表自動回算 |
+| `完成集點時間` | 集滿八枚星芒時間，來自 `completions.completed_at` |
+| `完成名次` | 依完成時間排序的名次 |
+| `禮物資格` | 集滿八枚時顯示 `可領取`，未集滿顯示 `未取得` |
+| `領取狀態` | 集滿後預設 `未領取`；若手動改成 `已領取`，後端回算不會覆蓋 |
 
 ### stations
 
@@ -137,6 +143,12 @@ Google Sheet Web App URL：
 6. 執行身分選「我」，存取權選「知道連結的任何人」。
 7. 複製 Web App URL，填入 `index.html` 內的 `GOOGLE_SHEET_API_URL`。
 8. 重新部署 GitHub Pages。部署後請用 Cmd+Shift+R 硬重整瀏覽器快取。
+
+若既有資料是在舊版 Apps Script 下完成，部署新版後可以開這個網址回補 `participants` 右側統計欄位：
+
+```text
+https://script.google.com/macros/s/你的WebAppID/exec?action=repairSummaries
+```
 
 測試時也可以先把 Web App URL 用網址參數帶入：
 

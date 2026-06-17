@@ -11,7 +11,7 @@ const SHEETS = {
 };
 
 const HEADERS = {
-  participants: ["code", "name", "group", "created_at", "updated_at"],
+  participants: ["code", "name", "group", "created_at", "updated_at", "報名時間", "集點數", "完成集點時間", "完成名次", "禮物資格", "領取狀態"],
   stamps: ["code", "station_id", "station_title", "host", "created_at"],
   completions: ["code", "name", "group", "completed_at"],
   meta: ["key", "value"]
@@ -57,6 +57,7 @@ function handleRequest_(e) {
     if (action === "formComplete") return output_(formComplete_(params), params.callback);
     if (action === "award") return output_(award_(params), params.callback);
     if (action === "complete") return output_(complete_(params), params.callback);
+    if (action === "repairSummaries") return output_(repairSummaries_(params), params.callback);
     return output_({ ok: false, error: "未知的 action: " + action }, params.callback);
   } catch (error) {
     return output_({ ok: false, error: error.message || String(error) }, params.callback);
@@ -143,6 +144,24 @@ function rows_(key) {
   });
 }
 
+function headerMap_(key) {
+  const sheet = sheet_(key);
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  return headers.reduce(function (map, header, index) {
+    if (header) map[header] = index + 1;
+    return map;
+  }, {});
+}
+
+function setParticipantValues_(rowNumber, values) {
+  const participantSheet = sheet_("participants");
+  const columns = headerMap_("participants");
+  Object.keys(values).forEach(function (header) {
+    if (!columns[header]) return;
+    participantSheet.getRange(rowNumber, columns[header]).setValue(values[header]);
+  });
+}
+
 function normalizeCode_(value) {
   const cleaned = String(value || "").trim().toUpperCase().replace(/[^0-9A-Z]/g, "");
   const legacy = cleaned.match(/^NP115(\d{1,4})$/);
@@ -222,12 +241,23 @@ function upsertParticipant_(code, name, group) {
   const existing = participantByCode_(normalizedCode);
   const now = nowIso_();
   if (existing) {
-    participantSheet.getRange(existing.rowNumber, 2, 1, 3).setValues([[name, group, toIso_(existing.created_at) || now]]);
-    participantSheet.getRange(existing.rowNumber, 5).setValue(now);
-    return Object.assign({}, existing, { code: normalizedCode, name: name, group: group, updated_at: now });
+    setParticipantValues_(existing.rowNumber, {
+      name: name,
+      group: group,
+      created_at: toIso_(existing.created_at) || now,
+      updated_at: now,
+      "報名時間": toIso_(existing["報名時間"]) || toIso_(existing.created_at) || now
+    });
+    return Object.assign({}, existing, {
+      code: normalizedCode,
+      name: name,
+      group: group,
+      updated_at: now,
+      "報名時間": toIso_(existing["報名時間"]) || toIso_(existing.created_at) || now
+    });
   }
-  participantSheet.appendRow([normalizedCode, name, group, now, now]);
-  return { code: normalizedCode, name: name, group: group, created_at: now, updated_at: now };
+  participantSheet.appendRow([normalizedCode, name, group, now, now, now, 0, "", "", "未取得", ""]);
+  return { code: normalizedCode, name: name, group: group, created_at: now, updated_at: now, "報名時間": now, "集點數": 0, "禮物資格": "未取得", "領取狀態": "" };
 }
 
 function stampExists_(code, stationId) {
@@ -265,19 +295,73 @@ function participantHasAllStamps_(code) {
   });
 }
 
+function stampCount_(code) {
+  const normalizedCode = normalizeCode_(code);
+  const stationIds = new Set(rows_("stamps")
+    .filter(function (stamp) {
+      return normalizeCode_(stamp.code) === normalizedCode;
+    })
+    .map(function (stamp) {
+      return stamp.station_id;
+    }));
+  return STATIONS.filter(function (station) {
+    return stationIds.has(station.id);
+  }).length;
+}
+
+function completionRank_(code) {
+  const normalizedCode = normalizeCode_(code);
+  const completions = rows_("completions")
+    .filter(function (completion) {
+      return normalizeCode_(completion.code);
+    })
+    .sort(function (a, b) {
+      return timeValue_(a.completed_at) - timeValue_(b.completed_at);
+    });
+  const index = completions.findIndex(function (completion) {
+    return normalizeCode_(completion.code) === normalizedCode;
+  });
+  return index >= 0 ? index + 1 : "";
+}
+
+function syncParticipantSummary_(code) {
+  const normalizedCode = normalizeCode_(code);
+  if (!normalizedCode) return null;
+  const participant = participantByCode_(normalizedCode);
+  if (!participant) return null;
+  const count = stampCount_(normalizedCode);
+  const completion = completionByCode_(normalizedCode);
+  const completedAt = completion ? toIso_(completion.completed_at) : "";
+  const giftEligible = count === STATIONS.length;
+  const existingClaimStatus = String(participant["領取狀態"] || "").trim();
+  setParticipantValues_(participant.rowNumber, {
+    updated_at: nowIso_(),
+    "報名時間": toIso_(participant["報名時間"]) || toIso_(participant.created_at),
+    "集點數": count,
+    "完成集點時間": completedAt,
+    "完成名次": completedAt ? completionRank_(normalizedCode) : "",
+    "禮物資格": giftEligible ? "可領取" : "未取得",
+    "領取狀態": existingClaimStatus || (giftEligible ? "未領取" : "")
+  });
+  return participantByCode_(normalizedCode);
+}
+
 function addCompletionIfEligible_(code) {
   const normalizedCode = normalizeCode_(code);
   const participant = participantByCode_(normalizedCode);
   if (!participant) return false;
   if (!participantHasAllStamps_(normalizedCode)) return false;
-  if (completionByCode_(normalizedCode)) return false;
-  sheet_("completions").appendRow([
-    normalizedCode,
-    participant.name || "",
-    participant.group || "學生",
-    nowIso_()
-  ]);
-  return true;
+  const existing = completionByCode_(normalizedCode);
+  if (!existing) {
+    sheet_("completions").appendRow([
+      normalizedCode,
+      participant.name || "",
+      participant.group || "學生",
+      nowIso_()
+    ]);
+  }
+  syncParticipantSummary_(normalizedCode);
+  return !existing;
 }
 
 function state_() {
@@ -339,6 +423,7 @@ function register_(params) {
       addStampIfMissing_(code, stationById_(FORM_STATION_ID), "自動點亮");
     }
     addStampIfMissing_(code, stationById_(DEFAULT_STATION_ID), "自動點亮");
+    syncParticipantSummary_(code);
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;
@@ -358,6 +443,7 @@ function formComplete_(params) {
     const participant = participantByCode_(code);
     if (!participant) return { ok: false, error: "找不到這個參加者代碼，請先完成報名。" };
     addStampIfMissing_(code, stationById_(FORM_STATION_ID), "自動點亮");
+    syncParticipantSummary_(code);
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;
@@ -382,6 +468,7 @@ function award_(params) {
     if (!participant) return { ok: false, error: "找不到這個參加者代碼，請先完成報名。" };
     const added = addStampIfMissing_(code, station, station.host);
     const completed = addCompletionIfEligible_(code);
+    if (!completed) syncParticipantSummary_(code);
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;
@@ -402,11 +489,39 @@ function complete_(params) {
     if (!participant) return { ok: false, error: "找不到這個參加者代碼，請先完成報名。" };
     if (!participantHasAllStamps_(code)) return { ok: false, error: "八枚星芒尚未集滿。" };
     const added = addCompletionIfEligible_(code);
+    if (!added) syncParticipantSummary_(code);
     const currentState = state_();
     const updatedParticipant = currentState.participants.find(function (item) {
       return item.code === code;
     });
     return { ok: true, already: !added, participant: updatedParticipant, state: currentState };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function repairSummaries_() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    setup_();
+    const codes = rows_("participants")
+      .map(function (participant) {
+        return normalizeCode_(participant.code);
+      })
+      .filter(function (code, index, allCodes) {
+        return code && allCodes.indexOf(code) === index;
+      });
+    const repaired = codes.map(function (code) {
+      const participant = syncParticipantSummary_(code);
+      return {
+        code: code,
+        count: stampCount_(code),
+        completed: participantHasAllStamps_(code),
+        participant: participant ? participant.name || "" : ""
+      };
+    });
+    return { ok: true, repaired: repaired.length, summaries: repaired, state: state_() };
   } finally {
     lock.releaseLock();
   }

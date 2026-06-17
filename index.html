@@ -1092,6 +1092,10 @@
       align-items: end;
     }
 
+    .checkpoint-status {
+      margin: 0;
+    }
+
     .celebration-banner {
       margin: 0 0 16px;
       border: 1px solid rgba(196, 134, 37, 0.36);
@@ -1303,6 +1307,7 @@
                           點亮星芒
                         </button>
                       </div>
+                      <div class="registration-status checkpoint-status" id="checkpointStatus"></div>
                     </div>
                   </div>
                   <div class="celebration-banner is-hidden" id="completionBanner">
@@ -1661,7 +1666,9 @@
     }
 
     function normalizePin(value) {
-      return String(value || "").replace(/\D/g, "");
+      return String(value || "")
+        .replace(/[０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xFEE0))
+        .replace(/\D/g, "");
     }
 
     function formatCodeNumber(value) {
@@ -2523,6 +2530,30 @@
       status.textContent = text;
     }
 
+    function showCheckpointStatus(kind, text) {
+      const status = document.getElementById("checkpointStatus");
+      if (!status) return;
+      status.className = `registration-status checkpoint-status show ${kind}`;
+      status.textContent = text;
+    }
+
+    function clearCheckpointStatus() {
+      const status = document.getElementById("checkpointStatus");
+      if (!status) return;
+      status.className = "registration-status checkpoint-status";
+      status.textContent = "";
+    }
+
+    function setCheckpointAwardBusy(isBusy) {
+      const button = document.getElementById("checkpointAwardBtn");
+      if (!button) return;
+      if (!button.dataset.readyHtml) button.dataset.readyHtml = button.innerHTML;
+      button.disabled = isBusy;
+      button.innerHTML = isBusy
+        ? `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>寫入中`
+        : button.dataset.readyHtml;
+    }
+
     function participantUpdatedTime(participant) {
       const updated = parseTime(participant?.updatedAt)?.getTime() || 0;
       const created = parseTime(participant?.createdAt)?.getTime() || 0;
@@ -2552,6 +2583,19 @@
       if (!recoveredCode) return null;
       switchingParticipant = false;
       state.activeCode = recoveredCode;
+      saveState();
+      renderAll();
+      return recovered;
+    }
+
+    async function recoverAwardAfterTimeout(code, stationId) {
+      setSyncStatus("warn", "星芒寫入確認中，正在重新同步任務名單...");
+      showCheckpointStatus("warn", "Google Sheet 回應較慢，正在確認這枚星芒是否已寫入...");
+      const synced = await refreshStateFromRemote({ quiet: true });
+      if (!synced) return null;
+      const recovered = findParticipantByCode(code);
+      if (!recovered?.stamps?.[stationId]) return null;
+      state.activeCode = displayParticipantCode(recovered);
       saveState();
       renderAll();
       return recovered;
@@ -2657,6 +2701,8 @@
       document.getElementById("checkpointTitle").textContent = `${station.number}. ${station.title}`;
       document.getElementById("checkpointHint").textContent = `輸入 ${station.theme} 的關卡密語，正確後這枚星芒會立刻點亮。`;
       document.getElementById("checkpointPin").value = "";
+      clearCheckpointStatus();
+      setCheckpointAwardBusy(false);
       document.getElementById("checkpointPanel").classList.remove("is-hidden");
       document.getElementById("checkpointPin").focus();
     }
@@ -2664,12 +2710,14 @@
     function closeCheckpointPanel() {
       document.getElementById("checkpointPanel").classList.add("is-hidden");
       document.getElementById("checkpointPin").value = "";
+      clearCheckpointStatus();
+      setCheckpointAwardBusy(false);
     }
 
     async function awardSelectedCheckpoint() {
       const participant = activeParticipant();
       const station = stationById(state.selectedStationId);
-      const pin = document.getElementById("checkpointPin").value;
+      const pin = normalizePin(document.getElementById("checkpointPin").value);
       if (!participant) {
         showRegistrationStatus("warn", "請先完成真名報到，再開始收集後面的星芒。");
         closeCheckpointPanel();
@@ -2682,12 +2730,16 @@
       }
       if (!isValidStationPin(station, pin)) {
         showRegistrationStatus("warn", `${station.title} 密語不正確，請向該站關主確認後再試一次。`);
+        showCheckpointStatus("warn", `${station.title} 密語不正確，請向該站關主確認後再試一次。`);
         document.getElementById("checkpointPin").select();
         return;
       }
       const code = displayParticipantCode(participant);
       if (SHEET_API_URL) {
         try {
+          setCheckpointAwardBusy(true);
+          showCheckpointStatus("warn", `正在為 ${participant.name || code} 寫入 ${station.title} 星芒，請稍候...`);
+          setSyncStatus("warn", `${station.title} 星芒寫入中...`);
           const data = await sheetRequest("award", { code, stationId: station.id, pin });
           applyRemoteState(data.state || {}, code);
           closeCheckpointPanel();
@@ -2704,7 +2756,24 @@
             : (completedNow ? "八枚星芒全部點亮，恭喜取得抽獎資格！" : `${station.title} 星芒點亮！`));
           document.getElementById("view-participant").scrollIntoView({ behavior: "smooth", block: "start" });
         } catch (error) {
+          if (isRecoverableSheetError(error)) {
+            const recovered = await recoverAwardAfterTimeout(code, station.id);
+            if (recovered) {
+              closeCheckpointPanel();
+              const completedNow = isComplete(recovered);
+              if (completedNow) syncCompletionIfNeeded(recovered);
+              setSyncStatus("ok", `${station.title} 已寫入 Google Sheet。`);
+              showRegistrationStatus("ok", completedNow
+                ? "八枚星芒全部點亮，恭喜取得抽獎資格！"
+                : `${station.title} 星芒點亮！剛剛 Google Sheet 回應較慢，系統已重新同步成功。`);
+              document.getElementById("view-participant").scrollIntoView({ behavior: "smooth", block: "start" });
+              return;
+            }
+          }
+          showCheckpointStatus("warn", error.message);
           showRegistrationStatus("warn", error.message);
+        } finally {
+          setCheckpointAwardBusy(false);
         }
         return;
       }
@@ -2736,7 +2805,7 @@
 
     async function awardStamp() {
       const station = stationById(state.selectedStationId);
-      const pin = document.getElementById("hostPin").value;
+      const pin = normalizePin(document.getElementById("hostPin").value);
       const code = compactParticipantCode(document.getElementById("awardCode").value);
       if (station.id === DEFAULT_STATION_ID || station.canAward === false) {
         showHostStatus("warn", "問卷與完成報名會由系統自動核發，不需關主給點。");
